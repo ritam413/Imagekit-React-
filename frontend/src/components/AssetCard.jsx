@@ -1,0 +1,93 @@
+import { FaGripVertical } from "react-icons/fa";
+import Share from "../components/Share/index.jsx";
+import { useState } from "react";
+import {toast} from 'react-hot-toast'
+
+export const AssetCard = ({ asset }) => {
+  const [showShare, setShowShare] = useState(false);
+  const [openShare , setOpenShare] = useState(false)  
+  console.log(asset.id)
+
+
+  const handleDownloadMedia = async () => {
+    const response = await fetch(asset.url || asset.originalUrl)
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement("a")
+    link.href = url
+    link.download = asset.title || "download"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleClose = () => {
+    setShowShare(false)
+    setOpenShare(false)
+  }
+
+  const handleDelete = async () => {
+    const response = await fetch(`http://localhost:8000/api/image/Image/${asset._id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+    const data = await response.json();
+    if(!data.error){
+      toast.success(data.message)
+    }
+    console.log(data);
+  }
+  return (
+    <div className="card bg-base-100 shadow-xl image-full group transform-gpu transition-all duration-300 hover:scale-105">
+      <img src={(asset.originalUrl) || (asset.url)} alt={asset.title} className="w-full h-full object-cover" />
+      <div className="card-body p-4 justify-between">
+        <div className="card-actions justify-end">
+          <div className="dropdown dropdown-end">
+            <button tabIndex={0} className="btn btn-circle btn-ghost btn-sm text-white opacity-70 group-hover:opacity-100">
+              <FaGripVertical size={20} />
+            </button>
+            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-20">
+              <li><a>Edit</a></li>
+              <li>
+                <button
+                  className="flex items-center gap-2 w-full px-3 py-2
+      text-gray-200 text-sm
+      hover:text-blue-500 hover:bg-gray-800 
+      rounded-md transition
+      focus:outline-none focus:ring-0
+"
+                  onClick={() => {setShowShare(true),setOpenShare(true)}}
+                  
+                >
+                  {/* {showShare ? "Close Share": "Share"} */}
+                  Share
+                </button>
+                {showShare && <Share
+                open={openShare}
+                onClose={()=>{setOpenShare(false)}}
+                url={(asset.originalUrl) || (asset.url)} />}
+                {/* <ShareDrayerWin/> */}
+              </li>
+              <li>
+                <button
+                  onClick={handleDownloadMedia}
+                >Download</button>
+              </li>
+              <li 
+              onClick={handleDelete}
+              className="text-error"><a>Delete</a></li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <h2 className="card-title text-white text-lg font-bold drop-shadow-md">{asset.title}</h2>
+        </div>
+      </div>
+    </div>
+  );
+};
