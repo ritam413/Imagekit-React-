@@ -133,7 +133,11 @@ const userId = useUserStore((state) => state.user?._id);
     window.addEventListener('mouseup', handleMouseUp);
   };
 
+  const handleDeleteSucess = (id)=>{
+    setAssets(prevAssets => prevAssets.filter(asset => asset._id !== id));
+    setDisplayAssets(prevDisplay => prevDisplay.filter(asset => asset._id !== id && asset.id !== id));
 
+  }
   return (
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
@@ -205,6 +209,7 @@ const userId = useUserStore((state) => state.user?._id);
                 <AssetCard
                   key={asset._id || `initial-${asset.id}`}
                   asset={asset}
+                  onDeleteSucess = {handleDeleteSucess}
                 />
               ))}
             </div>

@@ -1,9 +1,10 @@
 import { FaGripVertical } from "react-icons/fa";
 import Share from "../components/Share/index.jsx";
+import React,{memo} from "react";
 import { useState } from "react";
 import {toast} from 'react-hot-toast'
-
-export const AssetCard = ({ asset }) => {
+import { motion, AnimatePresence } from "framer-motion";
+export const AssetCard = memo(({ asset , onDeleteSucess}) => {
   const [showShare, setShowShare] = useState(false);
   const [openShare , setOpenShare] = useState(false)  
   console.log(asset.id)
@@ -39,6 +40,9 @@ export const AssetCard = ({ asset }) => {
     const data = await response.json();
     if(!data.error){
       toast.success(data.message)
+      onDeleteSucess(asset._id)
+    }else{
+      toast.error(data.message)
     }
     console.log(data);
   }
@@ -90,4 +94,4 @@ export const AssetCard = ({ asset }) => {
       </div>
     </div>
   );
-};
+})
