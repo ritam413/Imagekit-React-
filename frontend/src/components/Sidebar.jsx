@@ -43,7 +43,7 @@ export const Sidebar = () => {
       onClick={() => navigate("/app")}
       className="flex items-center gap-2 mb-8 cursor-pointer">
         <FaImage className="text-primary text-3xl" />
-        <span className="text-2xl font-bold text-primary">ImagexY</span>
+        <span className="text-2xl font-bold text-primary">PicxY</span>
       </div>
 
       {/* Menu */}
@@ -83,7 +83,7 @@ export const Sidebar = () => {
           <button 
           onClick={() => navigate("/app")}
           className="flex flex-row gap-2 cursor-pointer"><FaImage size={30} className="text-primary text-2xl" />
-            <span className="font-bold text-primary">ImagexY</span>
+            <span className="font-bold text-primary">PicxY</span>
           </button>
         </div>
       </div>

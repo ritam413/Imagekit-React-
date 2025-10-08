@@ -20,9 +20,9 @@ const HeroPage = () => {
 
 return (
   // Apply DaisyUI's dark theme class and default background/text colors
-  <div className="min-h-screen bg-base-300 text-base-content font-sans">
+  <div className="min-h-screen bg-base-300 text-base-content font-sans flex flex-col">
     <Navbar/>
-    <HeroSection />
+    <HeroSection  />
     <ImageVideoGridSection />
     {/* Optional: Add a simple footer */}
     <Footer />

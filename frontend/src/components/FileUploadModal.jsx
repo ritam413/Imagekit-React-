@@ -144,7 +144,7 @@ const FilePreview = ({ file, onRemove }) => {
 };
 
 // --- MAIN UPLOAD MODAL COMPONENT ---
-const UploadModal = ({ modalId }) => {
+const UploadModal = ({ modalId , onUploadSuccess}) => {
     const [files, setFiles] = useState([]);
 
     const onDrop = useCallback(acceptedFiles => {
@@ -197,9 +197,12 @@ const UploadModal = ({ modalId }) => {
             toast.error("Upload Failed")
             return null
         }
-
+        console.log("Data i got from fileuploadmodal: ",data.data)
         toast.success("Upload Success")
-
+        if(onUploadSuccess && data ) {
+            console.log("onUploadSuccess calleda from fileuploadmodal")
+            onUploadSuccess(data.data)
+        }
         handleClose();
     };
     //------------------------------------------

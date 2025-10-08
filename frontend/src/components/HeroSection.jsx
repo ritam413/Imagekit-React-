@@ -23,7 +23,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden p-4 md:p-8">
+    <section className="flex-1  h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden p-4 md:p-8">
       {/* Background gradients/animations */}
       <div className="absolute inset-0 z-0 opacity-50">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-yellow-900 animate-gradient-shift"></div>
@@ -48,18 +48,18 @@ const HeroSection = () => {
         >
           {/* Before Image */}
           <img
-            src="https://images.pexels.com/photos/33728147/pexels-photo-33728147.jpeg"
+            src="https://ik.imagekit.io/ritam123/wallpapersden.com_zen-tanjiro-kamado-hd-demon-slayer_1920x1080.jpg1759860182248_STKxaKODy"
             alt="Original"
             className="w-full h-full object-cover"
           />
 
           {/* After Image (Clipped Dynamically) */}
           <div
-            className="absolute inset-0 overflow-hidden"
+            className="absolute inset-0 overflow-hidden bg-black"
             style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
           >
             <img
-              src="https://images.pexels.com/photos/33728109/pexels-photo-33728109.jpeg"
+              src="https://ik.imagekit.io/ritam123/wallpapersden.com_zen-tanjiro-kamado-hd-demon-slayer_1920x1080.jpg1759860182248_STKxaKODy?tr=e-removedotbg"
               alt="After"
               className="w-full h-full object-cover"
             />

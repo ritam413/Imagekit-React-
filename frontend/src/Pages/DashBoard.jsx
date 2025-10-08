@@ -133,6 +133,10 @@ const userId = useUserStore((state) => state.user?._id);
     window.addEventListener('mouseup', handleMouseUp);
   };
 
+  const onUploadSuccess = (newAssets)=>{
+    setAssets(prevAssets => [...prevAssets, ...newAssets]);
+    setDisplayAssets(prevDisplay => [...prevDisplay, ...newAssets]);
+  }
   const handleDeleteSucess = (id)=>{
     setAssets(prevAssets => prevAssets.filter(asset => asset._id !== id));
     setDisplayAssets(prevDisplay => prevDisplay.filter(asset => asset._id !== id && asset.id !== id));
@@ -214,7 +218,9 @@ const userId = useUserStore((state) => state.user?._id);
               ))}
             </div>
           </InfiniteScroll>
-          <UploadModal modalId={modalId} />
+          <UploadModal 
+          onUploadSuccess={onUploadSuccess}
+          modalId={modalId} />
           {displayAssets.length === 0 && (
             <div className="text-center py-20">
               <p className="text-xl text-base-content/70">No assets found. Try adjusting your filters.</p>
