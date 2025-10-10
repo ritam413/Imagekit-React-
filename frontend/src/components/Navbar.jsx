@@ -45,7 +45,9 @@ const Navbar = () => {
       <nav className="navbar bg-transparent text-white px-4 md:px-8 py-4 z-50 relative">
         <div className="navbar-start ">
           {/* Your Brand/Logo */}
-          <a className="text-2xl font-extrabold  bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text">PicxY</a>
+          <a 
+          onClick={()=>navigate("/app")}
+          className="text-2xl font-extrabold  bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 hover:font-extrabold cursor-pointer ">PicxY</a>
         </div>
         <div className="navbar-center hidden lg:flex">
           {/* Navigation Links */}

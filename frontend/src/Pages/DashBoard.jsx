@@ -218,7 +218,7 @@ const userId = useUserStore((state) => state.user?._id);
               ))}
             </div>
           </InfiniteScroll>
-          <UploadModal 
+         < UploadModal 
           onUploadSuccess={onUploadSuccess}
           modalId={modalId} />
           {displayAssets.length === 0 && (

@@ -7,6 +7,8 @@ import { Toaster } from 'react-hot-toast';
 import HeroPage from './Pages/HeroPage.jsx'
 import UserDashboard from './Pages/DashBoard.jsx'
 import Navbar from './components/Navbar.jsx'
+import { EditPage } from './Pages/EditPage.jsx'
+
 function App() {
   
   return (
@@ -37,6 +39,11 @@ function App() {
         <Route
           path='/user'
           element={<UserDashboard />}
+        ></Route>
+
+        <Route
+          path='/edit'
+          element={<EditPage />}
         ></Route>
         
         

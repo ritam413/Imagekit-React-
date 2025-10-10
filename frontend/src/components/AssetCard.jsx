@@ -3,7 +3,6 @@ import Share from "../components/Share/index.jsx";
 import React,{memo} from "react";
 import { useState } from "react";
 import {toast} from 'react-hot-toast'
-import { motion, AnimatePresence } from "framer-motion";
 export const AssetCard = memo(({ asset , onDeleteSucess}) => {
   const [showShare, setShowShare] = useState(false);
   const [openShare , setOpenShare] = useState(false)  

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { FiArrowRight } from "react-icons/fi"; // example icon
 
 import { useRef } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 
 
 const HeroSection = () => {
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState(50);
@@ -88,6 +90,7 @@ const HeroSection = () => {
         {/* Gradient Buttons */}
         <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
           <button
+            onClick={() => navigate('/edit')}
             className="group relative btn btn-lg bg-gradient-to-r from-yellow-600 to-yellow-400 border-none text-black font-bold shadow-xl transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-yellow-500/50"
           >
             <span className="flex items-center gap-2">
