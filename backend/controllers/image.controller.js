@@ -55,7 +55,14 @@ export const transformation = async (req, res) => {
     }
 };
 
-
+const example = [
+    {
+        originalUrl : "https://ik.imagekit.io/ritam123/download.jpeg1760124044964_VfVkTw2O5",
+        aiTransformation: "e-changebg",
+        prompt:"snowy backgrount , morning , clear sky , face lit by sunlight",
+        transformedUrl : "https://ik.imagekit.io/ritam123/download.jpeg1760124044964_VfVkTw2O5?tr=q-80,f-png,e-changebg-prompt-snowy%20backgrount%20,%20morning%20,%20clear%20sky%20,%20face%20lit%20by%20sunlight"
+    }
+]
 export const uploadImage = async (req, res) => {
     if (!req.files || req.files.length === 0) {
         console.log("No files were uploaded.");
@@ -126,36 +133,91 @@ export const uploadImage = async (req, res) => {
 
 export const AItransformtaion = async (req, res) => {
 
-    const { filePath, aiTransformation, format } = req.body
+    try {
+        
+        const transformedURL = await TransformationAi(req, res);
+    
+        if (!transformedURL) {
+            console.log("Failed Transformed URL");
+            return res.status(200).json({ "message": "Failed Transformed URL" });
+        }
+        console.log("Transformed URL: ", chalk.yellow(`${transformedURL}`));
+        return res.status(200).json({ transformedURL });
+    } catch (error) {
+        
+    }
+}
+export const TransformationAi = async (req, res) => {
+    const { filePath, aiTransformation, format , prompt , originalUrl  } = req.body
 
+    const raw = ()=>{
+        if(prompt){
+            return `${aiTransformation}-prompt-${prompt}`
+        }else{
+            return  `${aiTransformation}`
+        }
+    }
 
     try {
         const transformedURL = client.helper.buildSrc({
             urlEndpoint: "https://ik.imagekit.io/ritam123",
-            src: filePath,
+            src: filePath || originalUrl,
             transformation: [
                 {
-                    // height: 200,
-                    // width: 300,
-                    // crop: "maintain_ratio",
                     quality: 80,
                     format: `${format}`,
-                    raw: `${aiTransformation}`,
+                    raw: raw() 
+                    
                 }
             ]
         });
 
         if (!transformedURL) {
             console.log("Failed Transformed URL");
-            return res.status(200).json({ "message": "Failed Transformed URL" });
+            return null
         }
         console.log("Transformed URL: ", chalk.yellow(`${transformedURL}`));
-        return res.status(200).json({
-            "Transformed URL": transformedURL
-        });
+        return  transformedURL
+
     } catch (err) {
         console.log("Error Transformting file in AItransformation function", err)
-        return res.status(400).json({ message: "Error Transforming file" })
+        return null
+    }
+}
+
+export const saveTransformedUrl = async (req, res) => {
+    
+    const {TransformedURl , originalUrl } = req.body;
+
+    if (!TransformedURl) {
+        console.log("Undefined Transformed URL");
+        return res.status(200).json({ "message": "Undefined Transformed URL" });
+    }
+    if(!originalUrl){
+        console.log("Undefined Original URL");
+        return res.status(200).json({ "message": "Undefined Original URL" });
+    }
+    
+
+
+    try {
+        const image = await Image.findOne({originalUrl})
+
+        const transformed = await Image.findOne({originalUrl , transformedImages : {$elemMatch : {url : TransformedURl}}})
+
+        if(transformed){
+            console.log("Transformed URL already exists");
+            return res.status(200).json({ "message": "Transformed URL already exists" });
+        }
+
+        image.transformedImages.push({ url: TransformedURl });
+
+        await image.save();
+
+        return res.status(200).json({ "message": "Transformed URL saved successfully" });
+    }catch(err){
+        console.log("Error saving transformed URL:", err);
+        return res.status(500).json({ "message": "Server error" });
     }
 }
 
@@ -172,6 +234,10 @@ export const effect_enhancements = async (req, res) => {
     // we require the method , parameeter (rotation) from req.body nothing else
 }
 export const image_overlay = async (req, res) => {
+    // this is a bit complicated have to study 
+}
+
+export const getSaveTrasnformedUrl = async (req, res) => {
     // this is a bit complicated have to study 
 }
 
@@ -209,6 +275,7 @@ export const getImage = async (req, res) => {
     }
     res.json(image)
 }
+
 
 
 

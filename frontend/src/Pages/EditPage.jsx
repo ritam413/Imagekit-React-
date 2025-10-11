@@ -7,9 +7,13 @@ import BottomGallery from '../components/BottomGallery.jsx';
 import useUserStore from '../zustand/user.store.js';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { TransformationThumbnails } from '../components/TransformationThumbnails.jsx';
+
 export const EditPage = () => {
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
+
+  const [Transformation,setTransformations] = useState({});
 
   // ✅ Redirect user to login if not logged in
   useEffect(() => {
@@ -30,10 +34,14 @@ export const EditPage = () => {
         <div className="flex flex-1 overflow-hidden">
           <LeftToolbar activePanel={activePanel} setActivePanel={setActivePanel} />
           <main className="flex-1 flex flex-col p-4 gap-4">
-            <Canvas active = {active} setActive = {setActive} />
+            <Canvas activeImage = {active} setActive = {setActive}  />
             <BottomGallery setActive = {setActive}  />
           </main>
-          <RightPanel activePanel={activePanel} />
+          <RightPanel 
+          activePanel={activePanel}  
+          active = {active} 
+          setActive = {setActive} 
+          setTransformation={setTransformations} />
         </div>
       </div>
     </>

@@ -5,7 +5,7 @@ import AITools from './AITools';
 // import CropTools from './CropTools';
 // import EnhancementTools from './EnhancementTools';
 
-export default function RightPanel({ activePanel }) {
+export default function RightPanel({ activePanel ,active ,setActive , setTransformations}) {
   const [visiblePanel, setVisiblePanel] = useState(activePanel);
 
   // Animate whenever activePanel changes
@@ -31,7 +31,9 @@ export default function RightPanel({ activePanel }) {
   return (
     <aside className="w-80 bg-base-200 p-4 overflow-y-auto">
       {/* <animated.div style={{ ...spring, width: '100%' }}> */}
-        {visiblePanel === 'ai' && <AITools />}
+        {visiblePanel === 'ai' && <AITools 
+        active={active} 
+        setTransformations = {setTransformations} setActive = {setActive}/>}
         {visiblePanel === 'crop' && <CropTools />}
         {visiblePanel === 'enhance' && <EnhancementTools />}
       {/* </animated.div> */}

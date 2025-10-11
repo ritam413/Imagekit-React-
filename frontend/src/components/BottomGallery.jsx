@@ -7,7 +7,6 @@ export default function BottomGallery({ active, setActive }) {
 
     // State to store uploaded files
     const [uploads, setUploads] = useState([]);
-
     // Callback after successful upload from FileUploadModal
     const onUploadSuccess = (uploadedFile) => {
         setUploads((prev) => [...prev, uploadedFile[0]]); // Add new upload immediately
