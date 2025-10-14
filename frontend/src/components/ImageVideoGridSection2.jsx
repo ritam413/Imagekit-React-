@@ -1,8 +1,9 @@
 // --- Imports --- 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AssetCard } from '../components/AssetCard.jsx';
 import useUserStore from '../zustand/user.store';
+import { useTrail, animated } from "@react-spring/web"
 //-----------------------
 
 
@@ -32,47 +33,36 @@ const initialAssets = [
 //-----------------------
 
 
+// --- Constants for pagination ---
+const ITEMS_PER_PAGE = 8;
 
 // --- DashBoard App --- 
 export const ImageVideoGridSection = () => {
 
-    // --- Getting States ----
-    const [assets, setAssets] = useState(initialAssets);
-    const [displayAssets, setDisplayAssets] = useState(initialAssets.slice(0, 8)); // lazy load first 8
+    // --- State Management ----
+    const [allAssets, setAllAssets] = useState(initialAssets);
+    const [displayAssets, setDisplayAssets] = useState([]);
     const [hasMore, setHasMore] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('all');
-    const [sidebarWidth, setSidebarWidth] = useState(256);
-    const modalId = "upload_modal";
-    const sidebarRef = useRef(null);
-    const isResizing = useRef(false);
+    const [filter, setFilter] = useState('all');
     const userId = useUserStore((state) => state.user?._id);
-    const [filter, setFilter] = useState('all')
-
-    // ----------------------
-
 
     // --- Fetch Media from backend ---
     const fetchMedia = async () => {
         try {
-            const res = await fetch("http://localhost:8000/api/image/Images",
-                {
-                    method: "GET",
-                    headers:
-                    {
-                        "Content-Type": "application/json",
-                    },
-                })
+            const res = await fetch("http://localhost:8000/api/image/Images", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             const data = await res.json();
+            console.log("Fetched media data: ", data);
 
-            console.log("data.media is : ","   data: " ,data);
-
-            const media = data
-            // Setting the fetched Assets AFter the initial asset Loads in 
-            setAssets(prev => {
-                const existingIds = new Set(prev.map(a => a._id || `initial-${a.id}`));
-                const newItems = media.filter(a => !existingIds.has(a._id));
-                return [...prev, ...newItems];
+            // Append new media, ensuring no duplicates from initialAssets or previous fetches
+            setAllAssets(prevAssets => {
+                const existingIds = new Set(prevAssets.map(a => a._id || `initial-${a.id}`));
+                const newItems = data.filter(item => !existingIds.has(item._id));
+                return [...prevAssets, ...newItems];
             });
 
         } catch (error) {
@@ -84,65 +74,53 @@ export const ImageVideoGridSection = () => {
         fetchMedia();
     }, []);
 
-    // --- Filtering ---
-    useEffect(() => {
-        let filtered = initialAssets;
-        if (filterType !== 'all') filtered = filtered.filter(a => a.type === filterType);
-        if (searchTerm) filtered = filtered.filter(a => a.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    // --- Memoized Filtering Logic ---
+    // This recalculates only when the full asset list or the filter changes.
+    const filteredAssets = useMemo(() => {
+        if (filter === 'all') {
+            return allAssets;
+        }
+        return allAssets.filter(asset => asset.type === filter);
+    }, [allAssets, filter]);
 
-        setAssets(filtered);
-        setDisplayAssets(filtered.slice(0, 9));
-        setHasMore(filtered.length > 7);
-    }, [searchTerm, filterType]);
+    // --- Effect for Updating Display Assets on Filter Change ---
+    // This resets the pagination and displayed items when a new filter is applied.
+    useEffect(() => {
+        const newDisplayAssets = filteredAssets.slice(0, ITEMS_PER_PAGE);
+        setDisplayAssets(newDisplayAssets);
+        setHasMore(filteredAssets.length > ITEMS_PER_PAGE);
+    }, [filteredAssets]);
 
     // --- Lazy load more assets ---
     const fetchMoreAssets = () => {
-        if (displayAssets.length >= assets.length) {
+        if (displayAssets.length >= filteredAssets.length) {
             setHasMore(false);
             return;
         }
+        
+        // Use a timeout to simulate network latency for a smoother loading feel
         setTimeout(() => {
-            const nextAssets = assets.slice(displayAssets.length, displayAssets.length + 4);
-            setDisplayAssets(prev => [...prev, ...nextAssets]);
-        }, 300);
+            const nextAssets = filteredAssets.slice(displayAssets.length, displayAssets.length + ITEMS_PER_PAGE);
+            setDisplayAssets(prevAssets => [...prevAssets, ...nextAssets]);
+        }, 500);
     };
 
-    // --- Sidebar Resizing ---
-    const handleMouseMove = useCallback((e) => {
-        if (isResizing.current && sidebarRef.current) {
-            let newWidth = e.clientX - sidebarRef.current.getBoundingClientRect().left;
-            if (newWidth < 200) newWidth = 200;
-            if (newWidth > 500) newWidth = 500;
-            setSidebarWidth(newWidth);
-        }
-    }, []);
-
-    const handleMouseUp = useCallback(() => {
-        isResizing.current = false;
-        document.body.style.cursor = 'default';
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-    }, [handleMouseMove]);
-
-    const handleMouseDown = (e) => {
-        e.preventDefault();
-        isResizing.current = true;
-        document.body.style.cursor = 'col-resize';
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-    };
-    const filteredItems = displayAssets.filter(media => filter === 'all' || media.type === filter);
+    // --- Animation Trail ---
+    const trail = useTrail(displayAssets.length, {
+        from: { opacity: 0, transform: 'translateY(20px)' },
+        to: { opacity: 1, transform: 'translateY(0px)' },
+        config: { mass: 1, tension: 200, friction: 20 },
+    });
 
     return (
         <section className="py-12 md:py-20 px-4 md:px-8 relative z-20 bg-black">
             <div className="max-w-7xl mx-auto">
                 {/* Filter Buttons */}
-                <div className="flex justify-center space-x-4 mb-10">
+                <div className="flex justify-center items-center flex-wrap gap-4 mb-10">
                     <button
                         onClick={() => setFilter('all')}
                         className={`btn btn-md ${filter === 'all' ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-black' : 'btn-outline text-yellow-300 border-yellow-500 hover:bg-yellow-500/20 hover:border-yellow-400'} hover:scale-105 transition-all duration-200`}
                     >
-
                         All
                     </button>
                     <button
@@ -150,6 +128,13 @@ export const ImageVideoGridSection = () => {
                         className={`btn btn-md ${filter === 'image' ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-black' : 'btn-outline text-yellow-300 border-yellow-500 hover:bg-yellow-500/20 hover:border-yellow-400'} hover:scale-105 transition-all duration-200`}
                     >
                         Images
+                    </button>
+                    {/* Added a 'Design' button to match your initial data */}
+                    <button
+                        onClick={() => setFilter('design')}
+                        className={`btn btn-md ${filter === 'design' ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-black' : 'btn-outline text-yellow-300 border-yellow-500 hover:bg-yellow-500/20 hover:border-yellow-400'} hover:scale-105 transition-all duration-200`}
+                    >
+                        Designs
                     </button>
                     <button
                         onClick={() => setFilter('video')}
@@ -159,28 +144,34 @@ export const ImageVideoGridSection = () => {
                     </button>
                 </div>
 
-
                 <InfiniteScroll
                     dataLength={displayAssets.length}
                     next={fetchMoreAssets}
                     hasMore={hasMore}
-                    loader={<h4 className="text-center text-yellow-400 py-8">Loading More...</h4>}
-                    endMessage={<p className="text-center text-gray-400 py-8"><b>All assets loaded</b></p>}
+                    loader={<h4 className="text-center text-yellow-400 py-8 col-span-full">Loading More...</h4>}
+                    endMessage={<p className="text-center text-gray-400 py-8 col-span-full"><b>All assets loaded</b></p>}
                 >
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                        {displayAssets.map((asset, index) => (
-                            <AssetCard
-                                isCommunity = {true}
-                                key={asset._id || `initial-${asset.id}`}
-                                asset={asset}
-                               
-                            />
-                        ))}
+                    {/* MASONRY LAYOUT: Using CSS columns for a compact, gap-free grid */}
+                    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6">
+                        {trail.map((style, index) => {
+                            const asset = displayAssets[index];
+                            return (
+                                <animated.div 
+                                    style={style} 
+                                    key={asset._id || `initial-${asset.id}`}
+                                    // This class prevents an item from breaking across two columns
+                                    className="break-inside-avoid mb-6"
+                                >
+                                    <AssetCard
+                                        isCommunity={true}
+                                        asset={asset}
+                                    />
+                                </animated.div>
+                            );
+                        })}
                     </div>
                 </InfiniteScroll>
-
             </div>
         </section>
     );
 };
-

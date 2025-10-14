@@ -9,6 +9,8 @@ import { FaFilter } from 'react-icons/fa';
 import useUserStore from '../zustand/user.store';
 import UploadModal from '../components/FileUploadModal.jsx';
 import Share from '../components/Share/index.jsx';
+// --- React Spring Imports ---
+import { useTrail, animated } from "@react-spring/web";
 //-----------------------
 
 
@@ -42,20 +44,25 @@ const initialAssets = [
 // --- DashBoard App --- 
 const UserDashboard = () => {
 
-// --- Getting States ----
-const [assets, setAssets] = useState(initialAssets);
-const [displayAssets, setDisplayAssets] = useState(initialAssets.slice(0, 8)); // lazy load first 8
-const [hasMore, setHasMore] = useState(true);
-const [searchTerm, setSearchTerm] = useState('');
-const [filterType, setFilterType] = useState('all');
-const [sidebarWidth, setSidebarWidth] = useState(256);
-const modalId = "upload_modal";
-const sidebarRef = useRef(null);
-const isResizing = useRef(false);
-const userId = useUserStore((state) => state.user?._id);
+  // --- Getting States ----
+  const [assets, setAssets] = useState(initialAssets);
+  const [displayAssets, setDisplayAssets] = useState(initialAssets.slice(0, 8)); // lazy load first 8
+  const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const modalId = "upload_modal";
+  const sidebarRef = useRef(null);
+  const isResizing = useRef(false);
+  const userId = useUserStore((state) => state.user?._id);
 
-// ----------------------
-
+  // --- Animation Trail ---
+  // This hook creates a "trail" of animations, one for each item in the displayAssets array.
+  const trail = useTrail(displayAssets.length, {
+    from: { opacity: 0, transform: 'translateY(20px)' },
+    to: { opacity: 1, transform: 'translateY(0px)' },
+    config: { mass: 1, tension: 200, friction: 20 },
+  });
 
   // --- Fetch Media from backend ---
   const fetchMedia = async () => {
@@ -133,11 +140,11 @@ const userId = useUserStore((state) => state.user?._id);
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  const onUploadSuccess = (newAssets)=>{
+  const onUploadSuccess = (newAssets) => {
     setAssets(prevAssets => [...prevAssets, ...newAssets]);
     setDisplayAssets(prevDisplay => [...prevDisplay, ...newAssets]);
   }
-  const handleDeleteSucess = (id)=>{
+  const handleDeleteSucess = (id) => {
     setAssets(prevAssets => prevAssets.filter(asset => asset._id !== id));
     setDisplayAssets(prevDisplay => prevDisplay.filter(asset => asset._id !== id && asset.id !== id));
 
@@ -208,19 +215,28 @@ const userId = useUserStore((state) => state.user?._id);
             loader={<h4 className="text-center text-yellow-400 py-8">Loading More...</h4>}
             endMessage={<p className="text-center text-gray-400 py-8"><b>All assets loaded</b></p>}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {displayAssets.map((asset, index) => (
-                <AssetCard
-                  key={asset._id || `initial-${asset.id}`}
-                  asset={asset}
-                  onDeleteSucess = {handleDeleteSucess}
-                />
-              ))}
+            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6">
+              {trail.map((style, index) => {
+                const asset = displayAssets[index];
+                return (
+                  <animated.div
+                    style={style}
+                    key={asset._id || `initial-${asset.id}`}
+                    // ADD THIS LINE to restore the vertical gap and prevent items from breaking
+                    className="break-inside-avoid mb-6"
+                  >
+                    <AssetCard
+                      asset={asset}
+                      onDeleteSucess={handleDeleteSucess}
+                    />
+                  </animated.div>
+                );
+              })}
             </div>
           </InfiniteScroll>
-         < UploadModal 
-          onUploadSuccess={onUploadSuccess}
-          modalId={modalId} />
+          <UploadModal
+            onUploadSuccess={onUploadSuccess}
+            modalId={modalId} />
           {displayAssets.length === 0 && (
             <div className="text-center py-20">
               <p className="text-xl text-base-content/70">No assets found. Try adjusting your filters.</p>

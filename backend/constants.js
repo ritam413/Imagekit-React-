@@ -3,3 +3,6 @@ export const IMAGEKIT_PRIVATE_KEY="private_jWDjlqRJqMBLmUphophjS75Sj4o="
 export const PUBLIC_URL_ENDPOINT="https://ik.imagekit.io/pri"
 
 export const JWT_SECRET = `9fe576107c858056cd2d56def7a27ac264e7c3c4658d1d5b4fcdcf52b4b7b96c459e0cecbb750e99fbae75ef7a4495a93bb6a33c39eb4b2ce9a0ad6e5c3b4a40`
+
+
+// passcode = Riyanshi26
