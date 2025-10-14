@@ -1,4 +1,5 @@
-export const IMAGEKIT_PUBLIC_KEY="public_wG7SbVSx0DC39LFlo6jA30/rTjY="
-export const IMAGEKIT_PRIVATE_KEY="private_vaNA1LA8i7/ZxhdhpMTmJkZ33SI="
-export const PUBLIC_URL_ENDPOINT="https://ik.imagekit.io/ritam123"
+export const IMAGEKIT_PUBLIC_KEY="public_o/5JahQ2AmULXfRu6QX4VV1ssv4="
+export const IMAGEKIT_PRIVATE_KEY="private_jWDjlqRJqMBLmUphophjS75Sj4o="
+export const PUBLIC_URL_ENDPOINT="https://ik.imagekit.io/pri"
+
 export const JWT_SECRET = `9fe576107c858056cd2d56def7a27ac264e7c3c4658d1d5b4fcdcf52b4b7b96c459e0cecbb750e99fbae75ef7a4495a93bb6a33c39eb4b2ce9a0ad6e5c3b4a40`

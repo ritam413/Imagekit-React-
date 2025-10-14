@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import FileUploadModal from "../components/FileUploadModal.jsx";
+import FileUploadModal from "../../components/FileUploadModal.jsx";
+import { useImageStore } from "../../zustand/image.store.js";
 
-export default function BottomGallery({ active, setActive }) {
+export default function BottomGallery() {
     const modalId = "upload_modal";
+    const activeImage = useImageStore((state)=>state.activeImage)
+    const setActiveImage = useImageStore((state)=>state.setActiveImage)
 
     // State to store uploaded files
     const [uploads, setUploads] = useState([]);
+
     // Callback after successful upload from FileUploadModal
     const onUploadSuccess = (uploadedFile) => {
-        setUploads((prev) => [...prev, uploadedFile[0]]); // Add new upload immediately
+        setUploads((prev) => [...prev, ...uploadedFile]); // Add new upload immediately
         console.log("Uploaded file:", uploadedFile);
     };
 
@@ -21,13 +25,14 @@ export default function BottomGallery({ active, setActive }) {
                         key={file._id || index}
                         className={`w-20 h-20 bg-base-300 rounded-md flex-shrink-0 overflow-hidden 
   transition-all duration-200
-  ${active === file.originalUrl
+  ${activeImage === file.originalUrl
                                 ? "border-2 border-blue-500 scale-105 shadow-md"
                                 : "border border-transparent hover:scale-105" }`}
 
                     >
                         <img
-                            onClick={() => { setActive(file.originalUrl.trim()) }}
+                            onClick={() => { setActiveImage(file.originalUrl.trim()) }}
+                            
                             src={(file.originalUrl)}   // <-- Use originalUrl from your API
                             alt={file.fileName || `upload-${file.fileName}`}  // Use fileName for alt
                             className="w-full h-full object-cover cursor-pointer"

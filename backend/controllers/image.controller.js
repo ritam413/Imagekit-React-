@@ -160,7 +160,7 @@ export const TransformationAi = async (req, res) => {
 
     try {
         const transformedURL = client.helper.buildSrc({
-            urlEndpoint: "https://ik.imagekit.io/ritam123",
+            urlEndpoint: "https://ik.imagekit.io/pri",
             src: filePath || originalUrl,
             transformation: [
                 {

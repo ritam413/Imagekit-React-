@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-const useImageStore = create((set, get) => ({
+export const useImageStore = create((set, get) => ({
 
     //All Uploaded Images
     uploadedImages: [],
@@ -14,7 +14,7 @@ const useImageStore = create((set, get) => ({
     // ====== Actions ====== //
     setUploadedImages: (images) => set({ uploadedImages: images }),
 
-    setAtiveImage: (imageUrl) => set({ activeImage: imageUrl }),
+    setActiveImage: (imageUrl) => set({ activeImage: imageUrl }),
 
     addTransformation: (originalUrl, transformedUrl, type) => {
         const prev = get().transformations
@@ -31,4 +31,3 @@ const useImageStore = create((set, get) => ({
     }
 }))
 
-export default useImageStore

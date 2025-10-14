@@ -14,8 +14,7 @@ import {
   MdCenterFocusStrong   // Face Crop
 } from "react-icons/md";
 import { useState } from "react";
-import { hover } from "framer-motion";
-import { set } from "mongoose";
+import { useImageStore } from "../../zustand/image.store.js";
 
 const AIToolButton = ({ icon, label, onClick, isSelected }) => {
   return (
@@ -34,9 +33,10 @@ const AIToolButton = ({ icon, label, onClick, isSelected }) => {
   );
 };
 
-export default function AITools({ active ,setTransformations ,setActive }) {
+export default function AITools({ active }) {
   const [promptText, setPromptText] = useState('');
   const [aiTransformations, setAiTransformations] = useState('');
+  const [loading , setLoading ]= useState(false)
   const tools = [
     { icon: <FaEraser size={24} />, label: "Bg Remove", value: "e-bgremove" },
     { icon: <AiOutlineSwap size={24} />, label: "Bg Change", value: "e-bgchange" },
@@ -47,24 +47,29 @@ export default function AITools({ active ,setTransformations ,setActive }) {
     { icon: <MdCenterFocusStrong size={24} />, label: "Face Crop", value: "e-facecrop" },
     { icon: <FaCropAlt size={24} />, label: "Smart Crop", value: "e-smartcrop" },
   ];
+  
+  const addTransformation = useImageStore((state)=>state.addTransformation)
+  const activeImage = useImageStore((state)=>state.activeImage)
+  const setActiveImage = useImageStore((state)=>state.setActiveImage)
+  console.log("Transformation to be applied on : ",activeImage)
 
-    console.log("Transformation to be applied on : ",active)
 
-
-  const handleGenerate = async (e) => {
+    const handleGenerate = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (!aiTransformations) {
       console.log("Please select an AI tool");
       return;
     }
-    console.log("Transformation to be applied on : ",active)
-    const url = active;
+    const url = activeImage;
+    console.log("Transformation to be applied on : ",url)
+    console.log(url)
     const body = {
       aiTransformation: aiTransformations,
       prompt: promptText || null,
       format: "png",
-      originalUrl: active || null,
+      originalUrl: activeImage || null,
     };
 
     try {
@@ -76,17 +81,11 @@ export default function AITools({ active ,setTransformations ,setActive }) {
       });
 
       const data = await response.json();
+      const transformedUrl = data.transformedURL
       console.log(`TransformedURL is: ${ data.transformedURL}`);
-
-      setTransformations((prev)=>({
-        ...prev,
-        [active]: [
-          ...(prev[active] || []),
-          {url: data.transformedURL,type: aiTransformations}
-        ]
-      }))
-
-      setActive(data.transformedURL)
+      addTransformation(activeImage,transformedUrl,aiTransformations)
+      setActiveImage(transformedUrl)//setting Active image in the Canvas
+      setLoading(false)
     } catch (error) {
       console.error("Error during AI transformation:", error);
     }
