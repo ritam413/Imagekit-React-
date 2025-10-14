@@ -18,16 +18,15 @@ import useUserStore from '../zustand/user.store.js';
 // --------------------------
 
 import Header from '../components/Navbar.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const EditPage = () => {
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
-  const activeImage = useImageStore((state)=>state.activeImage)
-  const setActiveImage = useImageStore((state)=>state.setAtiveImage)
-  const transformations = useImageStore((state)=>state.transformations)
-
-
+  const {url} = useParams()
+  const decodeURl = decodeURIComponent(url);
+  console.log("URL i got from params is: ",decodeURl,"or : ",url)
+  const setActiveImage = useImageStore((state) => state.setActiveImage);
   // ✅ Redirect user to login if not logged in
   useEffect(() => {
     if (!user) {
@@ -35,6 +34,10 @@ export const EditPage = () => {
     }
   }, [user, navigate]);
 
+  if(decodeURl){
+    setActiveImage(decodeURl)
+  }
+  
 
   // State to manage the active tool panel ('ai', 'crop', 'enhance')
   const [activePanel, setActivePanel] = useState('ai');

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar.jsx';
 import HeroSection from '../components/HeroSection.jsx';
-import ImageVideoGridSection from '../components/ImageVideoGridSection.jsx';
+import { ImageVideoGridSection } from '../components/ImageVideoGridSection2.jsx';
 import Footer from '../components/Footer.jsx';
 import useUserStore from '../zustand/user.store';
 import { useNavigate } from 'react-router-dom';

@@ -1,11 +1,13 @@
 import { FaGripVertical } from "react-icons/fa";
 import Share from "../components/Share/index.jsx";
-import React,{memo} from "react";
+import React, { memo } from "react";
 import { useState } from "react";
-import {toast} from 'react-hot-toast'
-export const AssetCard = memo(({ asset , onDeleteSucess}) => {
+import { toast } from 'react-hot-toast'
+import { useNavigate } from "react-router-dom";
+export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
+  const navigate = useNavigate();
   const [showShare, setShowShare] = useState(false);
-  const [openShare , setOpenShare] = useState(false)  
+  const [openShare, setOpenShare] = useState(false)
   console.log(asset.id)
 
 
@@ -37,14 +39,16 @@ export const AssetCard = memo(({ asset , onDeleteSucess}) => {
       credentials: "include",
     });
     const data = await response.json();
-    if(!data.error){
+    if (!data.error) {
       toast.success(data.message)
       onDeleteSucess(asset._id)
-    }else{
+    } else {
       toast.error(data.message)
     }
     console.log(data);
   }
+
+  
   return (
     <div className="card bg-base-100 shadow-xl image-full group transform-gpu transition-all duration-300 hover:scale-105">
       <img src={(asset.originalUrl) || (asset.url)} alt={asset.title} className="w-full h-full object-cover" />
@@ -55,7 +59,9 @@ export const AssetCard = memo(({ asset , onDeleteSucess}) => {
               <FaGripVertical size={20} />
             </button>
             <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-20">
-              <li><a>Edit</a></li>
+              <li><buttton
+              onClick={()=>navigate(`/edit/${encodeURIComponent(asset.originalUrl || asset.url)}`)}
+              >Edit</buttton></li>
               <li>
                 <button
                   className="flex items-center gap-2 w-full px-3 py-2
@@ -64,16 +70,16 @@ export const AssetCard = memo(({ asset , onDeleteSucess}) => {
       rounded-md transition
       focus:outline-none focus:ring-0
 "
-                  onClick={() => {setShowShare(true),setOpenShare(true)}}
-                  
+                  onClick={() => { setShowShare(true), setOpenShare(true) }}
+
                 >
                   {/* {showShare ? "Close Share": "Share"} */}
                   Share
                 </button>
                 {showShare && <Share
-                open={openShare}
-                onClose={()=>{setOpenShare(false)}}
-                url={(asset.originalUrl) || (asset.url)} />}
+                  open={openShare}
+                  onClose={() => { setOpenShare(false) }}
+                  url={(asset.originalUrl) || (asset.url)} />}
                 {/* <ShareDrayerWin/> */}
               </li>
               <li>
@@ -81,9 +87,10 @@ export const AssetCard = memo(({ asset , onDeleteSucess}) => {
                   onClick={handleDownloadMedia}
                 >Download</button>
               </li>
-              <li 
-              onClick={handleDelete}
-              className="text-error"><a>Delete</a></li>
+              {!isCommunity && <li
+                onClick={handleDelete}
+                className="text-error"><a>Delete</a></li>}
+
             </ul>
           </div>
         </div>

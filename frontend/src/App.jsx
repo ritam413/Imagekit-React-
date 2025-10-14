@@ -45,6 +45,10 @@ function App() {
           path='/edit'
           element={<EditPage />}
         ></Route>
+        <Route
+          path='/edit/:url'
+          element={<EditPage />}
+        ></Route>
       </Routes>
     </>
   )
