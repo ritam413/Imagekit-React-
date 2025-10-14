@@ -45,8 +45,6 @@ function App() {
           path='/edit'
           element={<EditPage />}
         ></Route>
-        
-        
       </Routes>
     </>
   )

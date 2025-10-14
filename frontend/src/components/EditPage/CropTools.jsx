@@ -21,7 +21,7 @@ export const CropTools = () => {
 
     return (
         <div className="flex flex-col gap-6 text-white h-full font-sans">
-            <h2 className="text-xl font-semibold text-slate-200">Crop & Resize</h2>
+            <h2 className="text-xl font-semibold text-slate-200 items-center text-center mt-2">Crop & Resize</h2>
 
             {/* Transform Section for rotation and flipping */}
             <div className="flex flex-col gap-3">
