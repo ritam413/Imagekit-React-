@@ -8,12 +8,42 @@ import HeroPage from './Pages/HeroPage.jsx'
 import UserDashboard from './Pages/DashBoard.jsx'
 import Navbar from './components/Navbar.jsx'
 import { EditPage } from './Pages/EditPage.jsx'
-
+import toast from 'react-hot-toast'
+import { set } from 'mongoose'
+import { useEffect, useState } from 'react'
 function App() {
+
+  const [loading, setLoading] = useState(true)
+  const isBackendOnline = async()=>{
+    try {
+      
+      const res = await fetch('http://localhost:8000/api/test',{
+        method:'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
   
+      const data = await res.json();
+  
+      if(data){
+        setLoading(false)
+        toast.success(data.message)
+      }
+    } catch (error) {
+      setLoading(true)
+    }finally{
+      setLoading(false)
+    }
+  }
+
+  useEffect(()=>{
+    isBackendOnline()
+  },[])
   return (
     <>
       <Toaster position='top-center'/>
+      
       <Routes>
          
         <Route
