@@ -44,8 +44,8 @@ export default function AITools({ active }) {
     { icon: <FaMagic size={24} />, label: "Generative Fill", value: "e-genfill" },
     { icon: <FaQrcode size={24} />, label: "Retouch", value: "e-retouch" },
     { icon: <AiOutlineExpand size={24} />, label: "Upscale", value: "e-upscale" },
-    { icon: <MdCenterFocusStrong size={24} />, label: "Face Crop", value: "e-facecrop" },
-    { icon: <FaCropAlt size={24} />, label: "Smart Crop", value: "e-smartcrop" },
+    { icon: <MdCenterFocusStrong size={24} />, label: "Face Crop", value: "e-fo-face" },
+    { icon: <FaCropAlt size={24} />, label: "Smart Crop", value: "e-fo" },
   ];
   
   const addTransformation = useImageStore((state)=>state.addTransformation)

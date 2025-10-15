@@ -1,5 +1,5 @@
 // --- Imports --- 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, use } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AssetCard } from '../components/AssetCard.jsx';
 import { Sidebar } from '../components/Sidebar.jsx';
@@ -9,6 +9,7 @@ import { FaFilter } from 'react-icons/fa';
 import useUserStore from '../zustand/user.store';
 import UploadModal from '../components/FileUploadModal.jsx';
 import Share from '../components/Share/index.jsx';
+import SkeletonGrid from '../components/Skeleton/SkeletonGrid.jsx';
 // --- React Spring Imports ---
 import { useTrail, animated } from "@react-spring/web";
 //-----------------------
@@ -16,26 +17,26 @@ import { useTrail, animated } from "@react-spring/web";
 
 // --- Initial Assets ---
 const initialAssets = [
-  { id: 12, type: 'image', title: 'Tropical Sunset', url: 'https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg', tags: ['nature', 'beach'] },
-  { id: 22, type: 'design', title: 'Marketing Poster', url: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg', tags: ['business', 'promo'] },
-  { id: 32, type: 'image', title: 'Mountain Landscape', url: 'https://images.pexels.com/photos/371633/pexels-photo-371633.jpeg', tags: ['nature', 'mountains'] },
-  { id: 42, type: 'image', title: 'City at Night', url: 'https://images.pexels.com/photos/531880/pexels-photo-531880.jpeg', tags: ['cityscape', 'urban'] },
-  { id: 52, type: 'design', title: 'Social Media Post', url: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg', tags: ['social', 'template'] },
-  { id: 62, type: 'image', title: 'Forest Path', url: 'https://images.pexels.com/photos/775201/pexels-photo-775201.jpeg', tags: ['nature', 'forest'] },
-  { id: 72, type: 'design', title: 'Brand Logo Concepts', url: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg', tags: ['branding', 'logo'] },
-  { id: 82, type: 'image', title: 'Abstract Art', url: 'https://images.pexels.com/photos/1269968/pexels-photo-1269968.jpeg', tags: ['art', 'abstract'] },
-  { id: 92, type: 'image', title: 'Beach Sunset', url: 'https://images.pexels.com/photos/247322/pexels-photo-247322.jpeg', tags: ['nature', 'beach'] },
-  { id: 120, type: 'image', title: 'Urban Park', url: 'https://images.pexels.com/photos/34148016/pexels-photo-34148016.jpeg', tags: ['cityscape', 'park'] },
-  { id: 121, type: 'image', title: 'Mountain Lake', url: 'https://images.pexels.com/photos/2286895/pexels-photo-2286895.jpeg', tags: ['nature', 'lake'] },
-  { id: 122, type: 'image', title: 'City Skyline', url: 'https://images.pexels.com/photos/33435614/pexels-photo-33435614.jpeg', tags: ['cityscape', 'skyline'] },
-  { id: 123, type: 'image', title: 'Autumn Leaves', url: 'https://images.pexels.com/photos/33435615/pexels-photo-33435615.jpeg', tags: ['nature', 'autumn'] },
-  { id: 124, type: 'design', title: 'Business Presentation', url: 'https://images.pexels.com/photos/34079357/pexels-photo-34079357.jpeg', tags: ['business', 'presentation'] },
-  { id: 125, type: 'design', title: 'Flyer Design', url: 'https://images.pexels.com/photos/33435617/pexels-photo-33435617.jpeg', tags: ['marketing', 'flyer'] },
-  { id: 126, type: 'design', title: 'Email Newsletter', url: 'https://images.pexels.com/photos/7583935/pexels-photo-7583935.jpeg', tags: ['email', 'newsletter'] },
-  { id: 127, type: 'design', title: 'Product Mockup', url: 'https://images.pexels.com/photos/33435619/pexels-photo-33435619.jpeg', tags: ['product', 'mockup'] },
-  { id: 128, type: 'design', title: 'Event Invitation', url: 'https://images.pexels.com/photos/33435620/pexels-photo-33435620.jpeg', tags: ['event', 'invitation'] },
-  { id: 129, type: 'image', title: 'Desert Dunes', url: 'https://images.pexels.com/photos/29708644/pexels-photo-29708644.jpeg', tags: ['nature', 'desert'] },
-  { id: 220, type: 'image', title: 'Night Sky Stars', url: 'https://images.pexels.com/photos/33435622/pexels-photo-33435622.jpeg', tags: ['nature', 'night', 'stars'] }
+  // { id: 12, type: 'image', title: 'Tropical Sunset', url: 'https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg', tags: ['nature', 'beach'] },
+  // { id: 22, type: 'design', title: 'Marketing Poster', url: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg', tags: ['business', 'promo'] },
+  // { id: 32, type: 'image', title: 'Mountain Landscape', url: 'https://images.pexels.com/photos/371633/pexels-photo-371633.jpeg', tags: ['nature', 'mountains'] },
+  // { id: 42, type: 'image', title: 'City at Night', url: 'https://images.pexels.com/photos/531880/pexels-photo-531880.jpeg', tags: ['cityscape', 'urban'] },
+  // { id: 52, type: 'design', title: 'Social Media Post', url: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg', tags: ['social', 'template'] },
+  // { id: 62, type: 'image', title: 'Forest Path', url: 'https://images.pexels.com/photos/775201/pexels-photo-775201.jpeg', tags: ['nature', 'forest'] },
+  // { id: 72, type: 'design', title: 'Brand Logo Concepts', url: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg', tags: ['branding', 'logo'] },
+  // { id: 82, type: 'image', title: 'Abstract Art', url: 'https://images.pexels.com/photos/1269968/pexels-photo-1269968.jpeg', tags: ['art', 'abstract'] },
+  // { id: 92, type: 'image', title: 'Beach Sunset', url: 'https://images.pexels.com/photos/247322/pexels-photo-247322.jpeg', tags: ['nature', 'beach'] },
+  // { id: 120, type: 'image', title: 'Urban Park', url: 'https://images.pexels.com/photos/34148016/pexels-photo-34148016.jpeg', tags: ['cityscape', 'park'] },
+  // { id: 121, type: 'image', title: 'Mountain Lake', url: 'https://images.pexels.com/photos/2286895/pexels-photo-2286895.jpeg', tags: ['nature', 'lake'] },
+  // { id: 122, type: 'image', title: 'City Skyline', url: 'https://images.pexels.com/photos/33435614/pexels-photo-33435614.jpeg', tags: ['cityscape', 'skyline'] },
+  // { id: 123, type: 'image', title: 'Autumn Leaves', url: 'https://images.pexels.com/photos/33435615/pexels-photo-33435615.jpeg', tags: ['nature', 'autumn'] },
+  // { id: 124, type: 'design', title: 'Business Presentation', url: 'https://images.pexels.com/photos/34079357/pexels-photo-34079357.jpeg', tags: ['business', 'presentation'] },
+  // { id: 125, type: 'design', title: 'Flyer Design', url: 'https://images.pexels.com/photos/33435617/pexels-photo-33435617.jpeg', tags: ['marketing', 'flyer'] },
+  // { id: 126, type: 'design', title: 'Email Newsletter', url: 'https://images.pexels.com/photos/7583935/pexels-photo-7583935.jpeg', tags: ['email', 'newsletter'] },
+  // { id: 127, type: 'design', title: 'Product Mockup', url: 'https://images.pexels.com/photos/33435619/pexels-photo-33435619.jpeg', tags: ['product', 'mockup'] },
+  // { id: 128, type: 'design', title: 'Event Invitation', url: 'https://images.pexels.com/photos/33435620/pexels-photo-33435620.jpeg', tags: ['event', 'invitation'] },
+  // { id: 129, type: 'image', title: 'Desert Dunes', url: 'https://images.pexels.com/photos/29708644/pexels-photo-29708644.jpeg', tags: ['nature', 'desert'] },
+  // { id: 220, type: 'image', title: 'Night Sky Stars', url: 'https://images.pexels.com/photos/33435622/pexels-photo-33435622.jpeg', tags: ['nature', 'night', 'stars'] }
 ];
 //-----------------------
 
@@ -51,6 +52,7 @@ const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [loading, setLoading] = useState(false)
   const modalId = "upload_modal";
   const sidebarRef = useRef(null);
   const isResizing = useRef(false);
@@ -67,6 +69,7 @@ const UserDashboard = () => {
   // --- Fetch Media from backend ---
   const fetchMedia = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`http://localhost:8000/api/dashboard/getMedia/${userId}`, {
         headers: { 'Content-Type': 'application/json' },
         credentials: "include"
@@ -82,9 +85,17 @@ const UserDashboard = () => {
         const newItems = media.filter(a => !existingIds.has(a._id));
         return [...prev, ...newItems];
       });
+       
+      if(!media){
+        
+        setLoading(true);
+      }
 
     } catch (error) {
       console.error('Error fetching media:', error);
+      setLoading(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,14 +105,14 @@ const UserDashboard = () => {
 
   // --- Filtering ---
   useEffect(() => {
-    let filtered = initialAssets;
+    let filtered = assets;
     if (filterType !== 'all') filtered = filtered.filter(a => a.type === filterType);
     if (searchTerm) filtered = filtered.filter(a => a.title.toLowerCase().includes(searchTerm.toLowerCase()));
 
     setAssets(filtered);
     setDisplayAssets(filtered.slice(0, 9));
     setHasMore(filtered.length > 7);
-  }, [searchTerm, filterType]);
+  }, [searchTerm, filterType,assets]);
 
   // --- Lazy load more assets ---
   const fetchMoreAssets = () => {
@@ -208,7 +219,7 @@ const UserDashboard = () => {
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           <h1 className="text-3xl font-bold mb-6 text-base-content">Your Assets</h1>
 
-          <InfiniteScroll
+          {loading ? <SkeletonGrid /> : <InfiniteScroll
             dataLength={displayAssets.length}
             next={fetchMoreAssets}
             hasMore={hasMore}
@@ -233,7 +244,8 @@ const UserDashboard = () => {
                 );
               })}
             </div>
-          </InfiniteScroll>
+          </InfiniteScroll>}
+
           <UploadModal
             onUploadSuccess={onUploadSuccess}
             modalId={modalId} />
