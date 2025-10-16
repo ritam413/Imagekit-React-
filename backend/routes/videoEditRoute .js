@@ -21,7 +21,8 @@ import {
     deleteVideo
 } from "../controllers/video.controller.js";
 
-router.post('/upload',protectRoute,upload.single('video'),uploadImage)
+
+// router.post('/upload',protectRoute,upload.single('video'),uploadImage)
 router.post('/resize_crop',resize_crop)
 router.post('/overlay',overlay_video)
 router.post('/transformation',common_Transformation)
@@ -29,7 +30,7 @@ router.post('/audio',audio_Transformation)
 router.post('/thumbnail',thumbnail)
 router.post('/trim',trim_Vidoes)
 router.post('/bitrate',adaptive_bitrate)
-router.post('/test-route',protectRoute,test)
+// router.post('/test-route',protectRoute,test)
 
 
 router.get("/vidoes",getVideos)

@@ -6,10 +6,8 @@ import { Routes,Route,Navigate } from "react-router-dom"
 import { Toaster } from 'react-hot-toast';
 import HeroPage from './Pages/HeroPage.jsx'
 import UserDashboard from './Pages/DashBoard.jsx'
-import Navbar from './components/Navbar.jsx'
 import { EditPage } from './Pages/EditPage.jsx'
 import toast from 'react-hot-toast'
-import { set } from 'mongoose'
 import { useEffect, useState } from 'react'
 function App() {
 
