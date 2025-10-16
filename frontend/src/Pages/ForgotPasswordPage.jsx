@@ -1,7 +1,6 @@
 import React from 'react';
 import { GiBleedingEye } from "react-icons/gi";
 import { LuEyeClosed } from "react-icons/lu";
-import { motion, AnimatePresence } from "framer-motion";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
