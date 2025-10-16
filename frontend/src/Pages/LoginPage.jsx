@@ -4,29 +4,35 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import useUserStore from '../zustand/user.store';
-
+import { FuturisticLines } from '../components/BackGrounds/FuturisticLines';
 
 const LoginPage = () => {
-    useNavigate();
 
-    const LoginCheckStatus = async (req,res)=>{
-        if(useUserStore.getState().user!==null){
-            navigate("/app")
-            console.log("Already Logged In")
+    // Initializing useNavigate() hook 
+    const navigate = useNavigate();
+
+    // Checking IF the User is already Logged in IF -> navigate("/app") else-> Login
+        const LoginCheckStatus = async (req,res)=>{
+            if(useUserStore.getState().user!==null){
+                navigate("/app")
+                console.log("Already Logged In")
+            }
         }
-    }
 
-    useEffect(()=>{
-        LoginCheckStatus()
-    },[])
-
+        useEffect(()=>{
+            LoginCheckStatus()
+        },[])
+    // ----------------------------------------------------------------------------
+    
+    // ---- States ----
     const [form, setForm] = useState({
         email: "",
         password: ""
     })
     const [loading, setLoading] = useState(false)
-    const navigate = useNavigate();
+    // -----------------
 
+    // Updating Input Values in Form 
     const handleChange = (e) => {
         setForm((prev) => ({
             ...prev,
@@ -34,6 +40,7 @@ const LoginPage = () => {
         }));
     }
 
+    // Function to Handle Login 
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true)
@@ -51,13 +58,11 @@ const LoginPage = () => {
             const data = await res.json()
 
             if (res.ok) {
-
+                // Setting Logged in User in Store
                 useUserStore.getState().setUser(data.user)
-
-
+                // Notifying User Has logged in 
                 toast.success(`Login Success: ${data.message}`)
-                
-                
+                // Navigate to App
                 navigate("/app")
                 console.log("Login Success: ",res.status)
             } else {
@@ -77,7 +82,7 @@ const LoginPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-dark-bg text-white relative overflow-hidden">
             {/* Abstract Wave Background (You might want to refine this with a more complex SVG or image) */}
-            <div
+            {/* <div
                 className="absolute top-0 right-0 w-3/5 h-full"
                 style={{
                     background: 'linear-gradient(135deg, rgba(161,0,255,0.8) 0%, rgba(0,16,255,0.8) 50%, rgba(0,217,255,0.8) 100%)',
@@ -85,10 +90,9 @@ const LoginPage = () => {
                     // For a more wavy effect, you'd typically use a background SVG or a canvas animation
                     // For simplicity, we'll use a linear gradient with a clip-path for now to mimic the overall shape.
                 }}
-            >
-
-            </div>
-
+            > */}
+            {/* </div> */}
+            {/* <FuturisticLines/> */}
             {/* Login Form Card */}
             <form onSubmit={handleLogin}>
                 <div className="relative z-10 p-10 py-5 rounded-xl shadow-2xl w-full max-w-md mx-4"

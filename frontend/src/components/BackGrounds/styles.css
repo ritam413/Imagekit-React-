@@ -1,0 +1,44 @@
+/* styles.css - Connected Circuit Edition */
+body {
+  margin: 0;
+  background-color: #07111b;
+}
+
+.bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  /* z-index: -1; */
+}
+
+/* Subtle grid for circuit board pattern */
+.circuit-board-bg {
+    background-image:
+        linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: -1px -1px;
+}
+
+/* Styling for the animated lines (circuit traces) */
+.circuit-trace {
+  position: absolute;
+  height: 4px; /* Traces are thin */
+  background: linear-gradient(90deg, rgba(255, 238, 0, 0.932), rgba(255, 251, 0, 0.842));
+  will-change: transform, opacity;
+  box-shadow: 0 0 5px rgba(251, 255, 0, 0.692);
+
+  /* CRUCIAL: Makes the line scale from its starting point */
+  transform-origin: 0% 50%;
+}
+
+/* Styling for the static/animated nodes/pads */
+.circuit-node {
+    position: absolute;
+    background-color: rgba(238, 255, 0, 0.6);
+    border-radius: 50%;
+    will-change: transform, box-shadow;
+}

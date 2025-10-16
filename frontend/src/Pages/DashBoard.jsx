@@ -1,5 +1,6 @@
 // --- Imports --- 
-import React, { useState, useEffect, useCallback, useRef, use } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+//--- Imports for Components ---
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AssetCard } from '../components/AssetCard.jsx';
 import { Sidebar } from '../components/Sidebar.jsx';
@@ -8,8 +9,9 @@ import { HiOutlineCloudArrowUp } from "react-icons/hi2";
 import { FaFilter } from 'react-icons/fa';
 import useUserStore from '../zustand/user.store';
 import UploadModal from '../components/FileUploadModal.jsx';
-import Share from '../components/Share/index.jsx';
 import SkeletonGrid from '../components/Skeleton/SkeletonGrid.jsx';
+import Share from '../components/Share/index.jsx';
+//-----------------------
 // --- React Spring Imports ---
 import { useTrail, animated } from "@react-spring/web";
 //-----------------------
@@ -56,7 +58,7 @@ const UserDashboard = () => {
   const modalId = "upload_modal";
   const sidebarRef = useRef(null);
   const isResizing = useRef(false);
-  const userId = useUserStore((state) => state.user?._id);
+  const userId = useUserStore((state) => state.user?._id);//getting UserId from Zustand Stores
 
   // --- Animation Trail ---
   // This hook creates a "trail" of animations, one for each item in the displayAssets array.
@@ -65,6 +67,7 @@ const UserDashboard = () => {
     to: { opacity: 1, transform: 'translateY(0px)' },
     config: { mass: 1, tension: 200, friction: 20 },
   });
+
 
   // --- Fetch Media from backend ---
   const fetchMedia = async () => {
@@ -85,12 +88,9 @@ const UserDashboard = () => {
         const newItems = media.filter(a => !existingIds.has(a._id));
         return [...prev, ...newItems];
       });
-       
-      if(!media){
-        
+      if (!media) {
         setLoading(true);
       }
-
     } catch (error) {
       console.error('Error fetching media:', error);
       setLoading(true);
@@ -99,20 +99,30 @@ const UserDashboard = () => {
     }
   };
 
+  //Calling the fetchMedia Function on PageLoad  to get Images from Server(Backend)
   useEffect(() => {
     fetchMedia();
   }, []);
 
-  // --- Filtering ---
-  useEffect(() => {
-    let filtered = assets;
-    if (filterType !== 'all') filtered = filtered.filter(a => a.type === filterType);
-    if (searchTerm) filtered = filtered.filter(a => a.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  //---- Filtering Assets ----
+  const filteredAssets = React.useMemo(() => {
+    let result = assets;
+    if (filterType !== 'all') {
+      result = result.filter(a => a.type === filterType);
+    }
+    if (searchTerm) {
+      result = result.filter(a =>
+        a.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    return result;
+  }, [assets, searchTerm, filterType]);
 
-    setAssets(filtered);
-    setDisplayAssets(filtered.slice(0, 9));
-    setHasMore(filtered.length > 7);
-  }, [searchTerm, filterType,assets]);
+  // --- Updating Display Assets  ---
+  useEffect(() => {
+    setDisplayAssets(filteredAssets.slice(0, 8)); // Set the initial page of filtered items
+    setHasMore(filteredAssets.length > 8);
+  }, [filteredAssets]);
 
   // --- Lazy load more assets ---
   const fetchMoreAssets = () => {
@@ -150,102 +160,115 @@ const UserDashboard = () => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
   };
+  //-------------------------------
 
+  //---- UPDATING on Upload Asset ---
   const onUploadSuccess = (newAssets) => {
     setAssets(prevAssets => [...prevAssets, ...newAssets]);
     setDisplayAssets(prevDisplay => [...prevDisplay, ...newAssets]);
   }
+  
+  //---- UPDATING on Delete Asset ---
   const handleDeleteSucess = (id) => {
     setAssets(prevAssets => prevAssets.filter(asset => asset._id !== id));
     setDisplayAssets(prevDisplay => prevDisplay.filter(asset => asset._id !== id && asset.id !== id));
 
   }
+
+
   return (
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
 
       {/* MAIN CONTENT */}
       <div className="drawer-content flex flex-col bg-slate-950">
-        <header className="navbar bg-slate-700 backdrop-blur-md shadow-sm p-4 sticky top-0 z-10 bg-gradient-to-r from-base-100 via-base-100 to-base-200/50">
-          <div className="flex-none lg:hidden mr-3">
-            <label htmlFor="my-drawer-2" className="btn btn-square btn-ghost">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </label>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <img src="https://images.pexels.com/photos/96381/pexels-photo-96381.jpeg" alt="Logo" className="h-8 w-8 rounded-4xl" />
-            <span className="font-bold text-lg">{useUserStore((state) => state.user?.username)}</span>
-          </div>
-
-          <div className="flex-1 flex justify-center">
-            <div className="form-control relative w-full max-w-xs">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-base-content/60">
-                <IoSearchSharp />
-              </span>
-              <input
-                type="text"
-                placeholder="Search by title..."
-                className="input input-bordered w-full pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex-none gap-2 flex items-center">
-            <div className="dropdown dropdown-end">
-              <label tabIndex={0} className="btn btn-ghost btn-circle">
-                <FaFilter />
+        {/* NAVBAR/HEADER */}
+          <header className="navbar bg-slate-700 backdrop-blur-md shadow-sm p-4 sticky top-0 z-10 bg-gradient-to-r from-base-100 via-base-100 to-base-200/50">
+            <div className="flex-none lg:hidden mr-3">
+              <label htmlFor="my-drawer-2" className="btn btn-square btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               </label>
-              <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-20">
-                <li><a onClick={() => setFilterType('all')}>All</a></li>
-                <li><a onClick={() => setFilterType('image')}>Images</a></li>
-                <li><a onClick={() => setFilterType('design')}>Designs</a></li>
-              </ul>
             </div>
-            <button
-              onClick={() => document.getElementById(modalId).showModal()}
-              className="btn btn-primary">
-              <HiOutlineCloudArrowUp
-                className="mr-2" size={30} /> Upload
-            </button>
-          </div>
-        </header>
+
+            <div className="flex items-center gap-3">
+              <img src="https://images.pexels.com/photos/96381/pexels-photo-96381.jpeg" alt="Logo" className="h-8 w-8 rounded-4xl" />
+              <span className="font-bold text-lg">{useUserStore((state) => state.user?.username)}</span>
+            </div>
+
+            <div className="flex-1 flex justify-center">
+              <div className="form-control relative w-full max-w-xs">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-base-content/60">
+                  <IoSearchSharp />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search by title..."
+                  className="input input-bordered w-full pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex-none gap-2 flex items-center">
+              <div className="dropdown dropdown-end">
+                <label tabIndex={0} className="btn btn-ghost btn-circle">
+                  <FaFilter />
+                </label>
+                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-20">
+                  <li><a onClick={() => setFilterType('all')}>All</a></li>
+                  <li><a onClick={() => setFilterType('image')}>Images</a></li>
+                  <li><a onClick={() => setFilterType('design')}>Designs</a></li>
+                </ul>
+              </div>
+              <button
+                onClick={() => document.getElementById(modalId).showModal()}
+                className="btn btn-primary">
+                <HiOutlineCloudArrowUp
+                  className="mr-2" size={30} /> Upload
+              </button>
+            </div>
+          </header>
+        {/* ------------- */}
 
         {/* Main Content with Infinite Scroll */}
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
+          
           <h1 className="text-3xl font-bold mb-6 text-base-content">Your Assets</h1>
 
-          {loading ? <SkeletonGrid /> : <InfiniteScroll
-            dataLength={displayAssets.length}
-            next={fetchMoreAssets}
-            hasMore={hasMore}
-            loader={<h4 className="text-center text-yellow-400 py-8">Loading More...</h4>}
-            endMessage={<p className="text-center text-gray-400 py-8"><b>All assets loaded</b></p>}
-          >
-            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6">
-              {trail.map((style, index) => {
-                const asset = displayAssets[index];
-                return (
-                  <animated.div
-                    style={style}
-                    key={asset._id || `initial-${asset.id}`}
-                    // ADD THIS LINE to restore the vertical gap and prevent items from breaking
-                    className="break-inside-avoid mb-6"
-                  >
-                    <AssetCard
-                      asset={asset}
-                      onDeleteSucess={handleDeleteSucess}
-                    />
-                  </animated.div>
-                );
-              })}
-            </div>
-          </InfiniteScroll>}
-
+          {loading ? 
+            <SkeletonGrid /> 
+            : 
+            <InfiniteScroll
+              dataLength={displayAssets.length}
+              next={fetchMoreAssets}
+              hasMore={hasMore}
+              loader={<h4 className="text-center text-yellow-400 py-8">Loading More...</h4>}
+              endMessage={<p className="text-center text-gray-400 py-8"><b>All assets loaded</b></p>}
+            >
+              <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6">
+                {trail.map((style, index) => {
+                  const asset = displayAssets[index];
+                  return (
+                    <animated.div
+                      style={style}
+                      key={asset._id || `initial-${asset.id}`}
+                      // ADD THIS LINE to restore the vertical gap and prevent items from breaking
+                      className="break-inside-avoid mb-6"
+                    >
+                      <AssetCard
+                        asset={asset}
+                        onDeleteSucess={handleDeleteSucess}
+                      />
+                    </animated.div>
+                  );
+                })}
+              </div>
+            </InfiniteScroll>
+          }
           <UploadModal
             onUploadSuccess={onUploadSuccess}
             modalId={modalId} />
@@ -255,7 +278,11 @@ const UserDashboard = () => {
             </div>
           )}
         </main>
+        {/* --------------------------------  */}
+
       </div>
+      {/* ----------- */}
+      
 
       {/* SIDEBAR */}
       <div className="drawer-side" style={{ width: `clamp(200px, ${sidebarWidth}px, 500px)` }}>
@@ -268,6 +295,8 @@ const UserDashboard = () => {
           />
         </div>
       </div>
+      {/* ------- */}
+
     </div>
   );
 };

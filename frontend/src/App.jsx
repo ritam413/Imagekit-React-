@@ -1,17 +1,24 @@
+//---- CSS Imports ----
 import './App.css'
+//---- React Imports ----
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { Routes,Route,Navigate } from "react-router-dom"
+import { Toaster } from 'react-hot-toast';
+//---- Pages Imports ----
 import LoginPage from './Pages/LoginPage.jsx'
 import SignupPage from './Pages/SignUpPage.jsx'
 import ForgotPasswordPage from './Pages/ForgotPasswordPage.jsx'
-import { Routes,Route,Navigate } from "react-router-dom"
-import { Toaster } from 'react-hot-toast';
 import HeroPage from './Pages/HeroPage.jsx'
 import UserDashboard from './Pages/DashBoard.jsx'
 import { EditPage } from './Pages/EditPage.jsx'
-import toast from 'react-hot-toast'
-import { useEffect, useState } from 'react'
+// ---------------------
 function App() {
-
+  
+  // ---- States ----
   const [loading, setLoading] = useState(true)
+
+  // ---- Check if backend is online ----
   const isBackendOnline = async()=>{
     try {
       
@@ -34,16 +41,18 @@ function App() {
       setLoading(false)
     }
   }
-
   useEffect(()=>{
     isBackendOnline()
   },[])
+  // ------------------------------------
+  
   return (
     <>
-      <Toaster position='top-center'/>
-      
+    {/* Declaring Toaster */}
+    <Toaster position='top-center'/>
+    
+    {/* ----- Routes ----- */}
       <Routes>
-         
         <Route
           path='/'
           element={<LoginPage />}
@@ -68,7 +77,6 @@ function App() {
           path='/user'
           element={<UserDashboard />}
         ></Route>
-
         <Route
           path='/edit'
           element={<EditPage />}
@@ -78,6 +86,7 @@ function App() {
           element={<EditPage />}
         ></Route>
       </Routes>
+    {/* ------------------ */}
     </>
   )
 }
