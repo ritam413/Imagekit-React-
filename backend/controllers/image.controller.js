@@ -2,6 +2,7 @@ import client from "../utils/imagekitConfig.js";
 import fs from 'fs'
 import chalk from "chalk";
 import Image from "../models/image.model.js";
+import { resize } from "framer-motion";
 export const transformation = async (req, res) => {
     const { sourceUrl, prompt } = req.body;
 
@@ -57,10 +58,10 @@ export const transformation = async (req, res) => {
 
 const example = [
     {
-        originalUrl : "https://ik.imagekit.io/ritam123/download.jpeg1760124044964_VfVkTw2O5",
+        originalUrl: "https://ik.imagekit.io/ritam123/download.jpeg1760124044964_VfVkTw2O5",
         aiTransformation: "e-changebg",
-        prompt:"snowy backgrount , morning , clear sky , face lit by sunlight",
-        transformedUrl : "https://ik.imagekit.io/ritam123/download.jpeg1760124044964_VfVkTw2O5?tr=q-80,f-png,e-changebg-prompt-snowy%20backgrount%20,%20morning%20,%20clear%20sky%20,%20face%20lit%20by%20sunlight"
+        prompt: "snowy backgrount , morning , clear sky , face lit by sunlight",
+        transformedUrl: "https://ik.imagekit.io/ritam123/download.jpeg1760124044964_VfVkTw2O5?tr=q-80,f-png,e-changebg-prompt-snowy%20backgrount%20,%20morning%20,%20clear%20sky%20,%20face%20lit%20by%20sunlight"
     }
 ]
 export const uploadImage = async (req, res) => {
@@ -134,9 +135,9 @@ export const uploadImage = async (req, res) => {
 export const AItransformtaion = async (req, res) => {
 
     try {
-        
+
         const transformedURL = await TransformationAi(req, res);
-    
+
         if (!transformedURL) {
             console.log("Failed Transformed URL");
             return res.status(200).json({ "message": "Failed Transformed URL" });
@@ -144,17 +145,17 @@ export const AItransformtaion = async (req, res) => {
         console.log("Transformed URL: ", chalk.yellow(`${transformedURL}`));
         return res.status(200).json({ transformedURL });
     } catch (error) {
-        
+
     }
 }
 export const TransformationAi = async (req, res) => {
-    const { filePath, aiTransformation, format , prompt , originalUrl  } = req.body
+    const { filePath, aiTransformation, format, prompt, originalUrl } = req.body
 
-    const raw = ()=>{
-        if(prompt){
+    const raw = () => {
+        if (prompt) {
             return `${aiTransformation}-prompt-${prompt}`
-        }else{
-            return  `${aiTransformation}`
+        } else {
+            return `${aiTransformation}`
         }
     }
 
@@ -166,8 +167,8 @@ export const TransformationAi = async (req, res) => {
                 {
                     quality: 80,
                     format: `${format}`,
-                    raw: raw() 
-                    
+                    raw: raw()
+
                 }
             ]
         });
@@ -177,7 +178,7 @@ export const TransformationAi = async (req, res) => {
             return null
         }
         console.log("Transformed URL: ", chalk.yellow(`${transformedURL}`));
-        return  transformedURL
+        return transformedURL
 
     } catch (err) {
         console.log("Error Transformting file in AItransformation function", err)
@@ -186,26 +187,26 @@ export const TransformationAi = async (req, res) => {
 }
 
 export const saveTransformedUrl = async (req, res) => {
-    
-    const {TransformedURl , originalUrl } = req.body;
+
+    const { TransformedURl, originalUrl } = req.body;
 
     if (!TransformedURl) {
         console.log("Undefined Transformed URL");
         return res.status(200).json({ "message": "Undefined Transformed URL" });
     }
-    if(!originalUrl){
+    if (!originalUrl) {
         console.log("Undefined Original URL");
         return res.status(200).json({ "message": "Undefined Original URL" });
     }
-    
+
 
 
     try {
-        const image = await Image.findOne({originalUrl})
+        const image = await Image.findOne({ originalUrl })
 
-        const transformed = await Image.findOne({originalUrl , transformedImages : {$elemMatch : {url : TransformedURl}}})
+        const transformed = await Image.findOne({ originalUrl, transformedImages: { $elemMatch: { url: TransformedURl } } })
 
-        if(transformed){
+        if (transformed) {
             console.log("Transformed URL already exists");
             return res.status(200).json({ "message": "Transformed URL already exists" });
         }
@@ -215,20 +216,163 @@ export const saveTransformedUrl = async (req, res) => {
         await image.save();
 
         return res.status(200).json({ "message": "Transformed URL saved successfully" });
-    }catch(err){
+    } catch (err) {
         console.log("Error saving transformed URL:", err);
         return res.status(500).json({ "message": "Server error" });
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const resize_crop = async (req, res) => {
     // Choosing the right cropping strategy
     // If you want to preserve the whole image content(no cropping) and need the exact same dimensions(height and width) in the output image as requested, choose either of the pad resize crop or forced crop strategy.
+    let { originalUrl, height, width, raw, focus, zoom, bgColor, ar } = req.body
 
+
+    if (!originalUrl && ((!height && !width) || (!raw))) {
+        console.log("Undefined Original URL ,  Width Height / Raw Transformtaion is Required");
+        return res.status(200).json({ "message": "Undefined Original URL ,  Width Height / Raw Transformtaion is Required" });
+    }
+
+
+
+    if (!focus && !zoom && !bgColor) {
+        console.log("Undefined focus , zoom , bgColor");
+    }
+    
+
+    let transformedURL
+    try {
+        if (raw && focus && zoom && bgColor && ar && height && width) {
+            transformedURL = client.helper.buildSrc({
+                urlEndpoint: process.env.URL_ENDPOINT,
+                src: originalUrl,
+                transformation: [
+                    {
+                        height,
+                        width,
+                        raw,
+                        focus,
+                        zoom,
+                        bgColor,
+                        ar
+                    }
+                ]
+            })
+        }
+        else if (raw && height && width) {
+            transformedURL = client.helper.buildSrc({
+                urlEndpoint: process.env.URL_ENDPOINT,
+                src: originalUrl,
+                transformation: [
+                    {
+                        height,
+                        width,
+                        raw
+                    }
+                ]
+            })
+        }
+        else if(height && width){
+            transformedURL = client.helper.buildSrc({
+                urlEndpoint: process.env.URL_ENDPOINT,
+                src: originalUrl,
+                transformation: [
+                    {
+                        height,
+                        width
+                    }
+                ]
+            })
+        }
+        else if(raw){
+            transformedURL = client.helper.buildSrc({
+                urlEndpoint: process.env.URL_ENDPOINT,
+                src: originalUrl,
+                transformation: [
+                    {
+                        raw
+                    }
+                ]
+            })
+        }
+        else if(ar  && width){
+            transformedURL = client.helper.buildSrc({
+                urlEndpoint: process.env.URL_ENDPOINT,
+                src: originalUrl,
+                transformation: [
+                    {
+                        width,
+                        ar
+                    }
+                ]
+            })
+        }
+        else if(ar && height){
+            transformedURL = client.helper.buildSrc({
+                urlEndpoint: process.env.URL_ENDPOINT,
+                src: originalUrl,
+                transformation: [
+                    {
+                        height,
+                        ar
+                    }
+                ]
+            })
+        }
+
+        if (!transformedURL) {
+            console.log("Failed Transformed URL");
+            return res.status(200).json({ "message": "Failed Transformed URL" });
+        }
+
+        return transformedURL;
+    } catch (err) {
+        console.log("Error in resize_crop FUnction in image.controller.js", err);
+        return res.status(500).json({ "message": "Error in resize_crop FUnction in image.controller.js", err });
+    }
     // If you want to preserve the whole image content(no cropping), but it is okay if one or both the dimensions(height or width) in the output image are adjusted to preserve the aspect ratio.Then choose either of the max - size cropping or min - size cropping strategy.You can also use the max - size - enlarge cropping strategy if you want to allow enlarging of the image in case the requested dimensions are more than the original image dimension.
 
     // If you need the exact same dimensions(height and width) in the output image as requested but it's okay to crop the image to preserve the aspect ratio (or extract a region from the original image). Then choose either of the maintain ratio crop or extract crop or pad extract crop strategy. You can combine the extract crop strategy with different focus values to get the desired result. 
 }
+
+export const res_resize_crop = async (req, res) => {
+    const transformedURL = await resize_crop(req, res)
+
+    if (!transformedURL) {
+        console.log("Failed Transformed URL");
+        return res.status(200).json({ "message": "Failed Transformed URL" });
+    }
+    console.log("Transformed URl (Resize_Crop): ", chalk.yellow(`${transformedURL}`));
+    return res.status(200).json({ transformedURL });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const effect_enhancements = async (req, res) => {
     // we require the method , parameeter (rotation) from req.body nothing else

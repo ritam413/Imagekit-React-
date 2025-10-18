@@ -67,14 +67,13 @@ export const audio_Transformation = async (req, res) => {
         // Build transformed URL
         const transformedURL = client.helper.buildSrc({
             urlEndpoint: "https://ik.imagekit.io/pri",
-            
+            src: originalUrl,
             transformation: [
-                // {
-                //     quality: 80,
-                //     format: "webp"
-                // }
+                {
+                    raw: safeTransformation
+                }
             ],
-            src: `${transformation}/${fileName}`
+            
         });
 
         console.log("Source URL:", originalUrl);
