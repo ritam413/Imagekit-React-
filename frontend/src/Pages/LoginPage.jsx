@@ -47,7 +47,7 @@ const LoginPage = () => {
         setLoading(true)
 
         try {
-            const res = await api.post(`api/auth/reset-password`,form)
+            const res = await api.post(`api/auth/login`,form)
 
             const data =  res.data
 
