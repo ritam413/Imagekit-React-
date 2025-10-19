@@ -23,7 +23,7 @@ const SignupPage = () => {
         setLoading(true);
 
         try{
-            const response = await api.post(`api/auth/signup`,form)
+            const response = await api.post(`api/auth/signup`,form,{withCredentials: true})
             const data = response.data
             if(response.status===200){
                 useUserStore.getState().setUser(data.user)

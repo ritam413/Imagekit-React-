@@ -185,7 +185,9 @@ const UploadModal = ({ modalId , onUploadSuccess}) => {
             formData.append('file', file);
         })
 
-        const response = await api.post("api/dashboard/uploadMedia",formData)
+        const response = await api.post("api/dashboard/uploadMedia",formData,{
+            withCredentials: true
+        })
 
         const data =  response.data
         console.log("fetched Data : ", data)

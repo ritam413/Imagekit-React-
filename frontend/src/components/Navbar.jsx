@@ -16,7 +16,7 @@ const Navbar = () => {
 
     try {
       setLoading(true)
-      const res = await api.post(`api/auth/logout`)
+      const res = await api.post(`api/auth/logout`,{withCredentials: true})
       const data =  res.data
 
       if(!data.error){

@@ -47,7 +47,7 @@ const LoginPage = () => {
         setLoading(true)
 
         try {
-            const res = await api.post(`api/auth/login`,form)
+            const res = await api.post(`api/auth/login`,form,{withCredentials: true})
 
             const data =  res.data
 
