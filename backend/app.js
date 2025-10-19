@@ -7,7 +7,7 @@ const app = express()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const allowedOrigins = import.meta.env.FRONTEND_URL
+const allowedOrigins = process.env.FRONTEND_URL
 
 app.use(cors({
   origin: allowedOrigins,
