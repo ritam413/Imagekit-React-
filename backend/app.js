@@ -7,7 +7,11 @@ const app = express()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const allowedOrigins = "https://picxy.netlify.app"
+const allowedOrigins = [
+  "https://picxy.netlify.app",
+  "http://localhost:5173", // dev
+  // add Netlify preview URLs if needed
+];
 console.log(allowedOrigins)
 app.use(cors({
   origin: function (origin, callback) {
