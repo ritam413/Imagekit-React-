@@ -7,8 +7,8 @@ const app = express()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const allowedOrigins = process.env.FRONTEND_URL?.split(',') || []
-
+const allowedOrigins = "https://picxy.netlify.app"
+console.log(allowedOrigins)
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true) // allow non-browser requests like Postman
@@ -22,7 +22,7 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
-app.get('/isOnline', (req, res) => res.send('Hello From Backend!').status(200))
+app.get('/isOnline', (req, res) => res.status(200).send('Hello From Backend!'))
 
 
 //import routes
