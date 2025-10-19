@@ -41,15 +41,11 @@ function App() {
   console.log(api.defaults.baseURL)
   
   useEffect(()=>{
-    const interval = setInterval(() => {
       const status =isBackendOnline()
       if(status===200){
         setLoading(false);
-        clearInterval(interval);
       }
 
-      return () => clearInterval(interval);
-    },3000)
   },[])
   // ------------------------------------
   
