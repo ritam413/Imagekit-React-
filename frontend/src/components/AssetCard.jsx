@@ -4,6 +4,7 @@ import React, { memo } from "react";
 import { useState } from "react";
 import { toast } from 'react-hot-toast'
 import { useNavigate } from "react-router-dom";
+import { api } from "../utils/axiosInstance.js";
 export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
   const navigate = useNavigate();
   const [showShare, setShowShare] = useState(false);
@@ -31,14 +32,8 @@ export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
   }
 
   const handleDelete = async () => {
-    const response = await fetch(`http://localhost:8000/api/image/Image/${asset._id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-    const data = await response.json();
+    const response = await api.delete(`api/image/Image/${asset._id}`)
+    const data =  response.data
     if (!data.error) {
       toast.success(data.message)
       onDeleteSucess(asset._id)

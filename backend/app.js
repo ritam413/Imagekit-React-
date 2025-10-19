@@ -26,7 +26,7 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
-app.get('/test', (req, res) => res.send('Hello From Backend!'))
+app.get('/', (req, res) => res.send('Hello From Backend!'))
 
 
 //import routes

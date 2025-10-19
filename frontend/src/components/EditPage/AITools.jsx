@@ -73,14 +73,9 @@ export default function AITools({ active }) {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/api/image/AItransformtaion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
+      const response = await api.post(`api/image/AItransformtaion`,body);
 
-      const data = await response.json();
+      const data =  response.data
       const transformedUrl = data.transformedURL
       console.log(`TransformedURL is: ${ data.transformedURL}`);
       addTransformation(activeImage,transformedUrl,aiTransformations)

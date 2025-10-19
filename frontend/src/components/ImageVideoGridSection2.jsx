@@ -5,6 +5,7 @@ import { AssetCard } from '../components/AssetCard.jsx';
 import useUserStore from '../zustand/user.store';
 import { useTrail, animated } from "@react-spring/web"
 import SkeletonGrid from './Skeleton/SkeletonGrid.jsx';
+import { api } from '../utils/axiosInstance.js';
 //-----------------------
 
 
@@ -51,13 +52,8 @@ export const ImageVideoGridSection = () => {
     const fetchMedia = async () => {
         setLoading(true);
         try {
-            const res = await fetch("http://localhost:8000/api/image/Images", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            const data = await res.json();
+            const res = await api.get(`api/image/Images`)
+            const data =  res.data
             console.log("Fetched media data: ", data);
 
             if (!data) {

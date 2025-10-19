@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import useUserStore from '../zustand/user.store';
 import toast from 'react-hot-toast';
+import { api } from "../utils/axiosInstance";
 
 export const Sidebar = () => {
   const [loading, setLoading] = useState(false);
@@ -15,12 +16,8 @@ export const Sidebar = () => {
   const handleLogout = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:8000/api/auth/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include"
-      });
-      const data = await res.json();
+      const res = await api.post(`api/auth/logout`)
+      const data =  res.data
 
       if (!data.error) {
         useUserStore.getState().setUser(null);

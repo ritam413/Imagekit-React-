@@ -14,6 +14,7 @@ import Share from '../components/Share/index.jsx';
 //-----------------------
 // --- React Spring Imports ---
 import { useTrail, animated } from "@react-spring/web";
+import { api } from '../utils/axiosInstance.js';
 //-----------------------
 
 
@@ -73,11 +74,8 @@ const UserDashboard = () => {
   const fetchMedia = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8000/api/dashboard/getMedia/${userId}`, {
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include"
-      });
-      const data = await response.json();
+      const response = await api.get(`api/dashboard/getMedia/${userId}`)
+      const data = response.data
 
       console.log(data.media);
 

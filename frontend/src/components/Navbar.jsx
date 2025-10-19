@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import useUserStore from '../zustand/user.store';
 import useFilterStore from '../zustand/heroFilter.store';
+import { api } from '../utils/axiosInstance';
 const Navbar = () => {
   const [loading , setLoading]= useState()
   const navigate = useNavigate()
@@ -15,14 +16,8 @@ const Navbar = () => {
 
     try {
       setLoading(true)
-      const res = await fetch('http://localhost:8000/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: "include"
-      })
-      const data = await res.json()
+      const res = await api.post(`api/auth/logout`)
+      const data =  res.data
 
       if(!data.error){
         useUserStore.getState().setUser(null)

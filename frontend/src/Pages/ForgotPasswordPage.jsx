@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 // --- React Icons ---
 import { GiBleedingEye } from "react-icons/gi";
 import { LuEyeClosed } from "react-icons/lu";
+import { api } from '../utils/axiosInstance';
 // ---------------------
 
 const SignupPage = () => {
@@ -60,16 +61,9 @@ const SignupPage = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8000/api/auth/reset-password', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload),
-                credentials: "include"
-            })
+            const response = await api.put(`api/auth/reset-password`,payload)
 
-            const data = await response.json()
+            const data = response.data
             if (response.ok) {
                 useUserStore.getState().setUser(data.user)
                 navigate("/login")

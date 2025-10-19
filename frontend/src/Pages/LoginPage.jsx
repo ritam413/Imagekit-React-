@@ -5,6 +5,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import useUserStore from '../zustand/user.store';
 import { FuturisticLines } from '../components/BackGrounds/FuturisticLines';
+import { api } from '../utils/axiosInstance';
 
 const LoginPage = () => {
 
@@ -46,16 +47,9 @@ const LoginPage = () => {
         setLoading(true)
 
         try {
-            const res = await fetch('http://localhost:8000/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(form),
-                credentials: "include"
-            })
+            const res = await api.post(`api/auth/reset-password`,form)
 
-            const data = await res.json()
+            const data =  res.data
 
             if (res.ok) {
                 // Setting Logged in User in Store

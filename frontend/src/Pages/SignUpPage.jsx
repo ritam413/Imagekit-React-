@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useUserStore from '../zustand/user.store';
+import { api } from '../utils/axiosInstance';
 const SignupPage = () => {
 
     const [form,setForm] = useState({
@@ -22,16 +23,8 @@ const SignupPage = () => {
         setLoading(true);
 
         try{
-            const response = await fetch('http://localhost:8000/api/auth/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(form),
-                credentials: "include"
-            })
-
-            const data = await response.json()
+            const response = await api.post(`api/auth/signup`,form)
+            const data = response.data
             if(response.ok){
                 useUserStore.getState().setUser(data.user)
                 navigate("/app")

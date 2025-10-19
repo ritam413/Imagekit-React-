@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
+import { api } from '../../utils/axiosInstance';
 // --- SVG ICONS ---
 // Self-contained SVGs to prevent dependency issues.
 const CloudUploadIcon = ({ size = 48, className = "" }) => (
@@ -184,14 +185,9 @@ const UploadModal = ({ modalId , onUploadSuccess}) => {
             formData.append('file', file);
         })
 
-        const response = await fetch('http://localhost:8000/api/dashboard/uploadMedia', {
-            method: 'POST',
-            
-            body: formData,
-            credentials: "include"
-        });
+        const response = await api.post(`api/dashboard/uploadMedia`,formData)
 
-        const data = await response.json()
+        const data =  response.data
         console.log("fetched Data : ", data)
         if (!response.ok) {
             toast.error("Upload Failed")

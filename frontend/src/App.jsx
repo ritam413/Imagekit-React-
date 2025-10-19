@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Routes,Route,Navigate } from "react-router-dom"
 import { Toaster } from 'react-hot-toast';
+import {api} from "../src/utils/axiosInstance.js"
 //---- Pages Imports ----
 import LoginPage from './Pages/LoginPage.jsx'
 import SignupPage from './Pages/SignUpPage.jsx'
@@ -22,14 +23,9 @@ function App() {
   const isBackendOnline = async()=>{
     try {
       
-      const res = await fetch('http://localhost:8000/api/test',{
-        method:'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      })
+      const res = await api.get("/isOnline")
   
-      const data = await res.json();
+      const data =  res.data
   
       if(data){
         setLoading(false)
