@@ -154,7 +154,7 @@ const UploadModal = ({ modalId, onUploadSuccess }) => {
         }));
         setFiles(prevFiles => [...prevFiles, ...newFiles]);
     }, []);
-
+    console.log("files dropped", files[0])
     // UPDATED: Added audio and video MIME types to the accept prop
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
