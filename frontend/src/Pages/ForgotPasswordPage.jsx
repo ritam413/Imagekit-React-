@@ -64,7 +64,7 @@ const SignupPage = () => {
             const response = await api.put(`api/auth/reset-password`,payload)
 
             const data = response.data
-            if (response.ok) {
+            if (response.status===200) {
                 useUserStore.getState().setUser(data.user)
                 navigate("/login")
                 toast.success("Reset Password Success: ", data.message)

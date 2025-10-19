@@ -51,7 +51,7 @@ const LoginPage = () => {
 
             const data =  res.data
 
-            if (res.ok) {
+            if (res.status === 200) {
                 // Setting Logged in User in Store
                 useUserStore.getState().setUser(data.user)
                 // Notifying User Has logged in 

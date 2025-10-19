@@ -25,7 +25,7 @@ const SignupPage = () => {
         try{
             const response = await api.post(`api/auth/signup`,form)
             const data = response.data
-            if(response.ok){
+            if(response.status===200){
                 useUserStore.getState().setUser(data.user)
                 navigate("/app")
                 toast.success(data.message)

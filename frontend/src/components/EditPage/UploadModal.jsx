@@ -189,7 +189,7 @@ const UploadModal = ({ modalId , onUploadSuccess}) => {
 
         const data =  response.data
         console.log("fetched Data : ", data)
-        if (!response.ok) {
+        if (!response.status===2000) {
             toast.error("Upload Failed")
             return null
         }
