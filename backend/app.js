@@ -7,11 +7,15 @@ const app = express()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const allowedOrigins = process.env.FRONTEND_URL
+const allowedOrigins = process.env.FRONTEND_URL?.split(',') || []
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true) // allow non-browser requests like Postman
+    if (allowedOrigins.includes(origin)) return callback(null, true)
+    return callback(new Error(`CORS not allowed for origin: ${origin}`))
+  },
+  credentials: true,
 }))
 
 app.use(cookieParser())
