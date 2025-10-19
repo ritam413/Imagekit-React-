@@ -7,20 +7,18 @@ const app = express()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const allowedOrigins = [
-  "https://picxy.netlify.app",
-  "http://localhost:5173", // dev
-  // add Netlify preview URLs if needed
-];
-console.log(allowedOrigins)
+const netlifyRegex = /^https:\/\/.*--picxy\.netlify\.app$/;
+const allowedOrigins = ["https://picxy.netlify.app", "http://localhost:5173"];
+
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true) // allow non-browser requests like Postman
-    if (allowedOrigins.includes(origin)) return callback(null, true)
-    return callback(new Error(`CORS not allowed for origin: ${origin}`))
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // Postman / server-to-server
+    if (allowedOrigins.includes(origin) || netlifyRegex.test(origin)) return callback(null, true);
+    return callback(new Error(`CORS not allowed for origin: ${origin}`));
   },
-  credentials: true,
-}))
+  credentials: true
+}));
+
 
 app.use(cookieParser())
 app.use(express.json())

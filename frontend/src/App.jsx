@@ -20,41 +20,41 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   // ---- Check if backend is online ----
-  const isBackendOnline = async () => {
-    try {
+  // const isBackendOnline = async () => {
+  //   try {
 
-      const res = await api.get("/isOnline")
+  //     const res = await api.get("/isOnline")
 
-      const data = res.data
+  //     const data = res.data
 
-      if (data) {
-        setLoading(false)
-        toast.success(data.message)
-      }
-    } catch (error) {
-      setLoading(true)
-    } finally {
-      setLoading(false)
-    }
-  }
+  //     if (data) {
+  //       setLoading(false)
+  //       toast.success(data.message)
+  //     }
+  //   } catch (error) {
+  //     setLoading(true)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   console.log(api.defaults.baseURL)
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const status = await isBackendOnline(); // assuming this returns a Promise
-        if (status === 200) {
-          setLoading(false);
-          clearInterval(interval);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }, 5000);
+  // useEffect(() => {
+  //   const interval = setInterval(async () => {
+  //     try {
+  //       const status = await isBackendOnline(); // assuming this returns a Promise
+  //       if (status === 200) {
+  //         setLoading(false);
+  //         clearInterval(interval);
+  //       }
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   }, 5000);
 
-    return () => clearInterval(interval); // cleanup on unmount
-  }, []); // runs once on moun
+  //   return () => clearInterval(interval); // cleanup on unmount
+  // }, []); // runs once on moun
 
   // ------------------------------------
 
