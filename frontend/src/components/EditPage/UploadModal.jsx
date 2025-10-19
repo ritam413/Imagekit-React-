@@ -190,7 +190,7 @@ const UploadModal = ({ modalId, onUploadSuccess }) => {
         files.forEach(file => {
             formData.append('file', file);
         })
-
+        console.log("FormData is: ", formData)
         const response = await fetch(`${process.env.VITE_BACKEND_URL}api/dashboard/uploadMedia`, {
             method: 'POST',
             body: formData,
