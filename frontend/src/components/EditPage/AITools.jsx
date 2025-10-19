@@ -15,7 +15,7 @@ import {
 } from "react-icons/md";
 import { useState } from "react";
 import { useImageStore } from "../../zustand/image.store.js";
-
+import { api } from "../../utils/axiosInstance.js";
 const AIToolButton = ({ icon, label, onClick, isSelected }) => {
   return (
     <button
