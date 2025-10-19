@@ -145,7 +145,7 @@ const FilePreview = ({ file, onRemove }) => {
 };
 
 // --- MAIN UPLOAD MODAL COMPONENT ---
-const UploadModal = ({ modalId , onUploadSuccess}) => {
+const UploadModal = ({ modalId, onUploadSuccess }) => {
     const [files, setFiles] = useState([]);
 
     const onDrop = useCallback(acceptedFiles => {
@@ -175,6 +175,11 @@ const UploadModal = ({ modalId , onUploadSuccess}) => {
         setFiles(prevFiles => prevFiles.filter(file => file.id !== fileToRemove.id));
     };
     // ---- write the upload image logic here // BACKEND --- 
+
+    files.forEach(file => formData.append('file', file));
+    for (let [key, value] of formData.entries()) {
+        console.log('FormData entry:', key, value);
+    }
     const handleFinalUpload = async () => {
         console.log("Uploading all processed files to the database...");
         const filesToUpload = files;
@@ -185,17 +190,21 @@ const UploadModal = ({ modalId , onUploadSuccess}) => {
             formData.append('file', file);
         })
 
-        const response = await api.post(`api/dashboard/uploadMedia`,formData,{withCredentials: true})
+        const response = await api.post(`api/dashboard/uploadMedia`, formData, {
+            withCredentials: true, headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        })
 
-        const data =  response.data
+        const data = response.data
         console.log("fetched Data : ", data)
-        if (!response.status===2000) {
+        if (!response.status === 2000) {
             toast.error("Upload Failed")
             return null
         }
-        console.log("Data i got from fileuploadmodal: ",data.data)
+        console.log("Data i got from fileuploadmodal: ", data.data)
         toast.success("Upload Success")
-        if(onUploadSuccess && data ) {
+        if (onUploadSuccess && data) {
             console.log("onUploadSuccess calleda from fileuploadmodal")
             onUploadSuccess(data.data)
         }
