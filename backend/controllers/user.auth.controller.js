@@ -100,7 +100,7 @@ export const login = async (req,res)=>{
                 expiresIn:"7d"
             }
         )
-
+        console.log("token: ",process.env.NODE_ENV)
         res.cookie("token",token,{
             httpOnly: true,
             secure: process.env.NODE_ENV==="prod",
