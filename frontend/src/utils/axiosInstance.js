@@ -1,12 +1,12 @@
 import axios from "axios";
 
 const baseURL = import.meta.env.BACKEND_URL || 
-  (import.meta.env.NODE_ENV==="prod"?
-    import.meta.env.BACKEND_URL
+  (import.meta.env.PROD?
+    import.meta.env.VITE_BACKEND_URL
     :
     "http://localhost:8000/")
 
-console.log(`baseURL in :${import.meta.env.NODE_ENV} `,baseURL)
+console.log(`baseURL in :${import.meta.env.PROD} `,baseURL)
 export const api = axios.create({
   baseURL: baseURL,
   withCredentials: true,
