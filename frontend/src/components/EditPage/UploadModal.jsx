@@ -186,7 +186,7 @@ const UploadModal = ({ modalId, onUploadSuccess }) => {
         const filesToUpload = files;
         console.log("Files to Upload is: ",filesToUpload);
         const formData = new FormData();
-        console.log(filesToUpload);
+        console.log("File to be uploaded aer : ",filesToUpload);
         files.forEach(file => {
             formData.append('file', file);
         })
