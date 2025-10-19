@@ -7,7 +7,7 @@ const app = express()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const allowedOrigins = [import.meta.env.VITE_FRONTEND_URL, 'http://localhost:5173']
+const allowedOrigins = [import.meta.env.VITE_FRONTEND_URL]
 
 app.use(cors({
 
