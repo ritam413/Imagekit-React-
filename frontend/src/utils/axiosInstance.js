@@ -6,7 +6,7 @@ const baseURL = import.meta.env.BACKEND_URL ||
     :
     "http://localhost:8000/")
 
-
+console.log(`baseURL in :${import.meta.env.NODE_ENV} `,baseURL)
 export const api = axios.create({
   baseURL: baseURL,
   withCredentials: true,
