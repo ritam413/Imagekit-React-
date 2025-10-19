@@ -177,26 +177,30 @@ const UploadModal = ({ modalId, onUploadSuccess }) => {
     // ---- write the upload image logic here // BACKEND --- 
 
     files.forEach(file => formData.append('file', file));
+
     for (let [key, value] of formData.entries()) {
         console.log('FormData entry:', key, value);
     }
     const handleFinalUpload = async () => {
         console.log("Uploading all processed files to the database...");
         const filesToUpload = files;
-
+        console.log("Files to Upload is: ",filesToUpload);
         const formData = new FormData();
         console.log(filesToUpload);
         files.forEach(file => {
             formData.append('file', file);
         })
 
-        const response = await api.post(`api/dashboard/uploadMedia`, formData, {
-            withCredentials: true, headers: {
-                "Content-Type": "multipart/form-data",
-            },
+        const response = await fetch(`${process.env.VITE_BACKEND_URL}api/dashboard/uploadMedia`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         })
 
-        const data = response.data
+        const data = response.json()
         console.log("fetched Data : ", data)
         if (!response.status === 2000) {
             toast.error("Upload Failed")
