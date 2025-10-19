@@ -7,11 +7,10 @@ const app = express()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const allowedOrigins = isProd
-  ? [process.env.FRONTEND_URL]
-  : ["http://localhost:5173"]
+const allowedOrigins = [import.meta.env.VITE_FRONTEND_URL, 'http://localhost:5173']
 
 app.use(cors({
+
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true)
