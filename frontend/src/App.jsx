@@ -38,7 +38,7 @@ function App() {
   //   }
   // }
 
-  console.log(api.defaults.baseURL)
+  // console.log(api.defaults.baseURL)
 
   // useEffect(() => {
   //   const interval = setInterval(async () => {

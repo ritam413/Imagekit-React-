@@ -47,9 +47,18 @@ const LoginPage = () => {
         setLoading(true)
 
         try {
-            const res = await api.post(`api/auth/login`,form,{withCredentials: true})
+            // const res = await api.post(`api/auth/login`,form,{withCredentials: true})
+            // const data =  res.data
 
-            const data =  res.data
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/login`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(form),
+            })
+            const data = await res.json()
 
             if (res.status === 200) {
                 // Setting Logged in User in Store

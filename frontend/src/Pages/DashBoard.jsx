@@ -74,8 +74,16 @@ const UserDashboard = () => {
   const fetchMedia = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`api/dashboard/getMedia/${userId}`)
-      const data = response.data
+      // const response = await api.get(`api/dashboard/getMedia/${userId}`)
+      // const data = response.data
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/dashboard/getMedia/${userId}`, { 
+        method: 'GET',
+        credentials: 'include', 
+        headers: {
+            'Content-Type': 'application/json'
+        }
+      })
+      const data = await res.json();
 
       console.log(data.media);
 

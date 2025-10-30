@@ -16,8 +16,17 @@ const Navbar = () => {
 
     try {
       setLoading(true)
-      const res = await api.post(`api/auth/logout`,{withCredentials: true})
-      const data =  res.data
+      // const res = await api.post(`api/auth/logout`,{withCredentials: true})
+      // const data =  res.data
+
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/logout`, { 
+        method: 'POST',
+        credentials: 'include', 
+        headers: {
+            'Content-Type': 'application/json'
+        }
+      })
+      const data = await res.json();
 
       if(!data.error){
         useUserStore.getState().setUser(null)

@@ -32,7 +32,14 @@ export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
   }
 
   const handleDelete = async () => {
-    const response = await api.delete(`api/image/Image/${asset._id}`)
+    // const response = await api.delete(`api/image/Image/${asset._id}`)
+    const response = await fetch(`${process.env.VITE_BACKEND_URL}api/image/Image/${asset._id}`, { 
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
     const data =  response.data
     if (!data.error) {
       toast.success(data.message)
