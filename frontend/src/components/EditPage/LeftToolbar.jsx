@@ -6,7 +6,7 @@ import { IoSparklesOutline } from "react-icons/io5";
 import IconButton from '../IconButton.jsx';
 import { useEditStore } from '../../zustand/editpage.store.js';
 
-export default function LeftToolbar({ activePanel, setActivePanel }) {
+export default function LeftToolbar() {
   const visiblePanel = useEditStore().visiblePanel
   const setVisiblePanel = useEditStore((state) => state.setVisiblePanel)
 

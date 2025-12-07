@@ -6,7 +6,7 @@ import chalk from "chalk";
 export const signup = async (req,res)=>{
     try{
         const {email,password,username} = req.body
-
+        console.log("Node env : ",process.env.NODE_ENV)
         if(!email||!password||!username){
             return res.status(400).json({message:"All fields are required"})
         }
@@ -38,13 +38,16 @@ export const signup = async (req,res)=>{
             }
         )
 
+        console.log("Secure: ",process.env.NODE_ENV==="production")
+        console.log("SameSite: ",process.env.NODE_ENV==="production"?"None":"lax")
+
         res.cookie("token",token,{
             httpOnly: true,
             secure: process.env.NODE_ENV==="production",
             sameSite: process.env.NODE_ENV==="production"?"none":"lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
-
+        
         res.status(200).json({
             user:userWithoutPassword,
             token,
@@ -64,7 +67,7 @@ export const signup = async (req,res)=>{
 export const login = async (req,res)=>{
     try{
         const {email,password} = req.body;
-
+        console.log("Node env : ",process.env.NODE_ENV)
         if(req.cookies.token){
             console.log("User already logged in")
             return res.status(400).json({message:"User already logged in"})
@@ -100,14 +103,17 @@ export const login = async (req,res)=>{
                 expiresIn:"7d"
             }
         )
-        console.log("token: ",process.env.NODE_ENV)
+
+        console.log("Secure: ",process.env.NODE_ENV==="production")
+        console.log("SameSite: ",process.env.NODE_ENV==="production"?"None":"lax")
+
         res.cookie("token",token,{
             httpOnly: true,
             secure: process.env.NODE_ENV==="production",
             sameSite: process.env.NODE_ENV==="production"?"None":"lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
-
+        
         console.log(chalk.green("User logged in successfully: ",userWithoutPassword.email))
         
         res.status(200).json({
