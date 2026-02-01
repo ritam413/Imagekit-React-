@@ -189,7 +189,7 @@ const UploadModal = ({ modalId , onUploadSuccess}) => {
         //     withCredentials: true
         // })
         // const data =  res.data
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/dashboard/uploadMedia`, {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/uploadMedia`, {
             method: 'POST',
             body: formData,
             credentials: 'include',

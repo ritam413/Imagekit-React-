@@ -77,7 +77,7 @@ export default function AITools({ active }) {
       // const response = await api.post(`api/image/AItransformtaion`,body);
       // const data =  response.data
       
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/image/AItransformtaion`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/image/AItransformtaion`, {
         method: 'POST',
         credentials: 'include', 
         headers: {

@@ -54,7 +54,7 @@ export const ImageVideoGridSection = () => {
         try {
             // const res = await api.get(`api/image/Images`)
             console.log("BackendUrl is : ", import.meta.env.VITE_BACKEND_URL)
-            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/image/Images`, { 
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/image/Images`, { 
                 method: 'GET',
                 credentials: 'include', 
                 headers: {
