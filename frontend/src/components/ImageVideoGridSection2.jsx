@@ -52,8 +52,17 @@ export const ImageVideoGridSection = () => {
     const fetchMedia = async () => {
         setLoading(true);
         try {
-            const res = await api.get(`api/image/Images`)
-            const data =  res.data
+            // const res = await api.get(`api/image/Images`)
+            console.log("BackendUrl is : ", import.meta.env.VITE_BACKEND_URL)
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/image/Images`, { 
+                method: 'GET',
+                credentials: 'include', 
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            const data = await res.json();
+            // const data =  res.data
             console.log("Fetched media data: ", data);
 
             if (!data) {

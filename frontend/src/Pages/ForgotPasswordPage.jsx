@@ -61,10 +61,20 @@ const SignupPage = () => {
         }
 
         try {
-            const response = await api.put(`api/auth/reset-password`,payload)
+            // const response = await api.put(`api/auth/reset-password`,payload)
+            // const data = response.data
 
-            const data = response.data
-            if (response.status===200) {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/reset-password`, {
+                method: "PUT",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            })
+            const data = await res.json()
+
+            if (res.status===200) {
                 useUserStore.getState().setUser(data.user)
                 navigate("/login")
                 toast.success("Reset Password Success: ", data.message)

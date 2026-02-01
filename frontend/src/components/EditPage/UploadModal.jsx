@@ -187,7 +187,7 @@ const UploadModal = ({ modalId, onUploadSuccess }) => {
         console.log("Files to Upload is: ",filesToUpload);
         const formData = new FormData();
         console.log("File to be uploaded aer : ",filesToUpload);
-        files.forEach(file => {
+        filesToUpload.forEach(file => {
             formData.append('file', file);
         })
         console.log("FormData is: ", formData)
@@ -195,14 +195,12 @@ const UploadModal = ({ modalId, onUploadSuccess }) => {
             method: 'POST',
             body: formData,
             credentials: 'include',
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+            
         })
 
-        const data = response.json()
+        const data = await response.json()
         console.log("fetched Data : ", data)
-        if (!response.status === 2000) {
+        if (!response.status === 200) {
             toast.error("Upload Failed")
             return null
         }

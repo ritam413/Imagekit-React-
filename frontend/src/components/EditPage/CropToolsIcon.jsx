@@ -1,3 +1,5 @@
+import { set } from "mongoose";
+
 const RotateLeftIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
 );
@@ -30,10 +32,10 @@ const UnlockIcon = () => (
  * A reusable button component for the tool panel.
  * It standardizes the look and feel of the transform tools.
  */
-const ToolButton = ({ icon, label, onClick }) => (
+const ToolButton = ({ icon, label , setActiveValue, activeValue, value}) => (
     <button 
-        onClick={onClick} 
-        className="flex flex-col items-center justify-center gap-2 p-3 bg-slate-700/40 hover:bg-slate-600/60 rounded-lg transition-colors text-sm w-full"
+        onClick={()=>setActiveValue(value)} 
+        className={`flex flex-col items-center justify-center gap-2 p-3   rounded-lg transition-colors text-sm w-full ${activeValue === value ? 'bg-purple-600 text-white' : 'bg-slate-700/40 hover:bg-slate-600/60 text-slate-300'}`}
     >
         <div className="w-6 h-6 text-slate-300">{icon}</div>
         <span className="text-slate-300">{label}</span>

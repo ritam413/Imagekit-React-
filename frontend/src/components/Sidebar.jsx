@@ -12,15 +12,24 @@ import { api } from "../utils/axiosInstance";
 export const Sidebar = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const setUser = useUserStore((state) => state.setUser);
 
   const handleLogout = async () => {
     try {
       setLoading(true);
-      const res = await api.post(`api/auth/logout`,{withCredentials: true})
-      const data =  res.data
+      // const res = await api.post(`api/auth/logout`,{withCredentials: true})
+      // const data =  res.data
 
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      const data = await res.json()
       if (!data.error) {
-        useUserStore.getState().setUser(null);
+        setUser(null);
         toast.success("Logout Success");
         navigate("/login");
       } else {
@@ -36,9 +45,9 @@ export const Sidebar = () => {
   return (
     <aside className="bg-slate-900 h-full p-4 flex flex-col">
       {/* Logo Section */}
-      <div 
-      onClick={() => navigate("/app")}
-      className="flex items-center gap-2 mb-8 cursor-pointer">
+      <div
+        onClick={() => navigate("/app")}
+        className="flex items-center gap-2 mb-8 cursor-pointer">
         <FaImage className="text-primary text-3xl" />
         <span className="text-2xl font-bold text-primary">PicxY</span>
       </div>
@@ -77,9 +86,9 @@ export const Sidebar = () => {
 
         {/* Footer Logo */}
         <div className="flex items-center gap-2 justify-center">
-          <button 
-          onClick={() => navigate("/app")}
-          className="flex flex-row gap-2 cursor-pointer"><FaImage size={30} className="text-primary text-2xl" />
+          <button
+            onClick={() => navigate("/app")}
+            className="flex flex-row gap-2 cursor-pointer"><FaImage size={30} className="text-primary text-2xl" />
             <span className="font-bold text-primary">PicxY</span>
           </button>
         </div>
