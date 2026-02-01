@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import  { useEffect } from 'react';
 import { UserCircleIcon, LockClosedIcon } from '@heroicons/react/24/outline'; // For icons
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+
+
 import useUserStore from '../zustand/user.store';
-import { FuturisticLines } from '../components/BackGrounds/FuturisticLines';
-import { api } from '../utils/axiosInstance';
+
 
 const LoginPage = () => {
 
@@ -13,7 +14,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     // Checking IF the User is already Logged in IF -> navigate("/app") else-> Login
-        const LoginCheckStatus = async (req,res)=>{
+        const LoginCheckStatus = async()=>{
             if(useUserStore.getState().user!==null){
                 navigate("/app")
                 console.log("Already Logged In")
@@ -47,10 +48,7 @@ const LoginPage = () => {
         setLoading(true)
 
         try {
-            // const res = await api.post(`api/auth/login`,form,{withCredentials: true})
-            // const data =  res.data
-
-            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/login`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -84,19 +82,6 @@ const LoginPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-dark-bg text-white relative overflow-hidden">
-            {/* Abstract Wave Background (You might want to refine this with a more complex SVG or image) */}
-            {/* <div
-                className="absolute top-0 right-0 w-3/5 h-full"
-                style={{
-                    background: 'linear-gradient(135deg, rgba(161,0,255,0.8) 0%, rgba(0,16,255,0.8) 50%, rgba(0,217,255,0.8) 100%)',
-                    clipPath: 'polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%)', // Creates a diagonal cut
-                    // For a more wavy effect, you'd typically use a background SVG or a canvas animation
-                    // For simplicity, we'll use a linear gradient with a clip-path for now to mimic the overall shape.
-                }}
-            > */}
-            {/* </div> */}
-            {/* <FuturisticLines/> */}
-            {/* Login Form Card */}
             <form onSubmit={handleLogin}>
                 <div className="relative z-10 p-10 py-5 rounded-xl shadow-2xl w-full max-w-md mx-4"
                     style={{ backgroundColor: 'rgba(28, 26, 47, 0.9)', backdropFilter: 'blur(10px)' }}>

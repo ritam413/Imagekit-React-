@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { RotateLeftIcon, RotateRightIcon, FlipHorizontalIcon, FlipVerticalIcon, LockIcon, UnlockIcon, ToolButton, AspectRatioButton } from './CropToolsIcon.jsx';
+import { useEditStore } from '../../zustand/editpage.store.js';
 // To keep the main component clean and readable, we can define the SVG icons as separate functional components.
 // These icons are styled to match the theme.
 
@@ -9,6 +10,8 @@ export const CropTools = () => {
     // State to manage the user's selections within the crop panel
     const [aspectRatio, setAspectRatio] = useState('free');
     const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
+    const {crop:cropState, setCrop} = useEditStore();
+    console.log("cropState", cropState)
     const [isLocked, setIsLocked] = useState(true);
     const [selected, setSelected] = useState(null);
     const handleDimensionChange = (e) => {
@@ -130,7 +133,7 @@ export const CropTools = () => {
                     <input
                         type="number"
                         name="width"
-                        value={dimensions.width}
+                        value={cropState.w}
                         onChange={handleDimensionChange}
                         onMouseDown={handleDragAdjust('width')}
                         className="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -142,7 +145,7 @@ export const CropTools = () => {
                     <input
                         type="number"
                         name="height"
-                        value={dimensions.height}
+                        value={cropState.h || dimensions.height}
                         onChange={handleDimensionChange}
                         onMouseDown={handleDragAdjust("height")}
 

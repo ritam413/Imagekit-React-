@@ -1,5 +1,6 @@
-import  { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useImageStore } from '../../../zustand/image.store';
+import { useEditStore } from '../../../zustand/editpage.store';
 
 export default function CropContainer({
   fileSrc,
@@ -8,46 +9,46 @@ export default function CropContainer({
   onCropChange,
   onImageLoad,
 }) {
+  const {crop: cropState , setCrop} = useEditStore();
   const imgRef = useRef(null);
   const cropRef = useRef(crop)
   const [isDragging, setIsDragging] = useState(false);
   const [startPointer, setStartPointer] = useState(null); // { x, y, crop, action }
-  
-  // --- Drag & Resize Handlers ---
-  useEffect(()=>{cropRef.current=crop},[crop]);
 
-  const cropS= useImageStore((state) => state.crop);
-  // console.log("cropS: ",cropS)
+  // --- Drag & Resize Handlers ---
+  useEffect(() => { cropRef.current = crop }, [crop]);
+
   
+
   //Preparing a requestAnimationFrame so that we only update crop state once per animation frame
-  const rafRef = useRef(null);
-  function emitRealtime(displayCrop){
-    if(rafRef.current) return ; 
+  const rafRef = useRef(null);cropRef.current
+  function emitRealtime(displayCrop) {
+    if (rafRef.current) return;
 
     rafRef.current = requestAnimationFrame(
-      ()=>{ 
-        rafRef.current=null; 
-        
-        if(typeof onCropRealTime === 'function'){
-          onCropRealTime(displayCrop,displayToImageCoords(displayCrop));
+      () => {
+        rafRef.current = null;
+
+        if (typeof onCropRealTime === 'function') {
+          onCropRealTime(displayCrop, displayToImageCoords(displayCrop));
         }
       }
     )
   }
 
-  function displayToImageCoords(displayCrop){
+  function displayToImageCoords(displayCrop) {
     const img = imgRef.current;
 
-    if(!img) return displayCrop;
+    if (!img) return displayCrop;
 
-    const rx = img.naturalWidth/img.clientWidth;
-    const ry = img.naturalHeight/img.clientHeight;
-
-    return{
-      y: Math.round(displayCrop.y*ry),
-      x: Math.round(displayCrop.x*rx),
-      w: Math.round(displayCrop.w*rx),
-      h: Math.round(displayCrop.h*ry), //To ensure that the height is always an integer, we round
+    const rx = img.naturalWidth / img.clientWidth;
+    const ry = img.naturalHeight / img.clientHeight;
+    
+    return {
+      y: Math.round(displayCrop.y * ry),
+      x: Math.round(displayCrop.x * rx),
+      w: Math.round(displayCrop.w * rx),
+      h: Math.round(displayCrop.h * ry), //To ensure that the height is always an integer, we round
     }
   }
 
@@ -60,26 +61,61 @@ export default function CropContainer({
 
     const boundedX = Math.max(0, Math.min(startPointer.crop.x + dx, img.clientWidth - startPointer.crop.w));
     const boundedY = Math.max(0, Math.min(startPointer.crop.y + dy, img.clientHeight - startPointer.crop.h));
-    const newCrop = {...startPointer.crop,x:boundedX,y:boundedY};
-    
+    const newCrop = { ...startPointer.crop, x: boundedX, y: boundedY };
+
+    setCrop(newCrop);
     onCropChange(c => ({ ...c, x: boundedX, y: boundedY }));
-    cropRef.current=newCrop
+    cropRef.current = newCrop
     emitRealtime(newCrop);
   }
 
   function onResizeMove(e) {
     if (!isDragging || !startPointer || startPointer.action !== 'resize') return;
+
+
     const dx = e.clientX - startPointer.x;
     const dy = e.clientY - startPointer.y;
+
+
     const img = imgRef.current;
     if (!img) return;
 
-    const newW = Math.max(20, Math.min(startPointer.crop.w + dx, img.clientWidth - startPointer.crop.x));
-    const newH = Math.max(20, Math.min(startPointer.crop.h + dy, img.clientHeight - startPointer.crop.y));
-    const newCrop = { ...startPointer.crop, w: newW, h: newH };
 
-    onCropChange(c => ({ ...c, w: newW, h: newH }));
-    cropRef.current=newCrop
+    let { x, y, w, h } = startPointer.crop;
+    const dir = startPointer.dir;
+
+    const minSize = 20;
+
+    if (dir.includes('right')) {
+      w = Math.max(minSize, Math.min(startPointer.crop.w + dx, img.clientWidth - x))
+    }
+
+    if (dir.includes('bottom')) {
+      h = Math.max(minSize, Math.min(startPointer.crop.h + dy, img.clientHeight - y));
+    }
+
+    if (dir.includes('left')) {
+      const newX = Math.max(0, startPointer.crop.x + dx)
+      const newW = startPointer.crop.w - dx
+      if (newW >= minSize) {
+        x = newX;
+        w = newW;
+      }
+    }
+
+    if (dir.includes('top')) {
+      const newY = Math.max(0, startPointer.crop.y + dy);
+      const newH = startPointer.crop.h - dy;
+      if (newH >= minSize) {
+        y = newY;
+        h = newH;
+      }
+    }
+
+    const newCrop = { x, y, w, h };
+
+    onCropChange(c => newCrop);
+    cropRef.current = newCrop
     emitRealtime(newCrop);
   }
 
@@ -87,24 +123,24 @@ export default function CropContainer({
     setIsDragging(false);
     setStartPointer(null);
 
-    if(rafRef.current){
+    if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
-      rafRef.current=null;
+      rafRef.current = null;
     }
 
-    if(typeof onCropRealTime === 'function'){
+    if (typeof onCropRealTime === 'function') {
       const final = cropRef.current
-      onCropRealTime(final,displayToImageCoords(cropRef.current));
+      onCropRealTime(final, displayToImageCoords(cropRef.current));
     }
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
     window.removeEventListener('pointermove', onResizeMove);
     window.removeEventListener('pointerup', onPointerUp); // Single 'up' handles both
   }
-  
-  function handleRealTime(display,imagePixels){
-    console.log('display',display)
-    console.log('imagePixels',imagePixels)
+
+  function handleRealTime(display, imagePixels) {
+    console.log('display', display)
+    console.log('imagePixels', imagePixels)
   }
   // Add/remove global listeners
   useEffect(() => {
@@ -132,10 +168,72 @@ export default function CropContainer({
     setStartPointer({ x: e.clientX, y: e.clientY, crop: { ...crop }, action: 'move' });
   }
 
-  function onPointerDownResize(e) {
+  
+  function onPointerDownResize(e,dir) {
+    e.preventDefault()
     e.stopPropagation();
     setIsDragging(true);
-    setStartPointer({ x: e.clientX, y: e.clientY, crop: { ...crop }, action: 'resize' });
+    setStartPointer({
+      x: e.clientX,
+      y: e.clientY,
+      crop: { ...crop },
+      action: 'resize',
+      dir
+    });
+    setCrop(crop)
+    console.log('x: ',cropState.x)
+    console.log('y: ',cropState.y)
+    console.log('w: ',cropState.w)
+    console.log('h: ',cropState.h)
+    console.log('crop: ',crop)
+
+  }
+
+  function edgeHandleStyle(side) {
+    const size = 10;
+    const base = {
+      position: 'absolute',
+      background: 'white',
+      pointerEvents: 'auto',
+    }
+
+    switch (side) {
+      case 'top':
+        return { ...base, top: -5, left: '50%', width: 30, height: size, cursor: 'ns-resize', transform: 'translateX(-50%)' }
+
+      case 'bottom':
+        return { ...base, bottom: -5, left: '50%', width: 30, height: size, cursor: 'ns-resize', transform: 'translateX(-50%)' }
+
+      case 'left':
+        return { ...base, left: -15, top: '50%', width: 30, height: size, cursor: 'ew-resize', transform: 'translateY(-50%) rotate(90deg)' }
+
+      case 'right':
+        return { ...base, right: -15, top: '50%', width: 30, height: size, cursor: 'ew-resize', transform: 'translateY(-50%) rotate(90deg)' }
+    };
+
+  }
+
+
+  function cornerHandleStyle(pos) {
+    const size = 14;
+    const base = {
+      position: 'absolute',
+      width: size,
+      height: size,
+      background: 'white',
+      pointerEvents: 'auto',
+    };
+
+    switch (pos) {
+      case 'top-left':
+        return { ...base, left: -7, top: -7, cursor: 'nwse-resize' };
+      case 'top-right':
+        return { ...base, right: -7, top: -7, cursor: 'nesw-resize' };
+      case 'bottom-left':
+        return { ...base, left: -7, bottom: -7, cursor: 'nesw-resize' };
+      case 'bottom-right':
+        return { ...base, right: -7, bottom: -7, cursor: 'nwse-resize' };
+    }
   }
 
   return (
@@ -173,21 +271,48 @@ export default function CropContainer({
                 title="Drag to move crop"
               >
                 {/* Resize Handle */}
+                {/* Right */}
                 <div
-                  onPointerDown={onPointerDownResize}
-                  style={{
-                    position: 'absolute',
-                    right: -8,
-                    bottom: -8,
-                    width: 16,
-                    height: 16,
-                    background: 'white',
-                    borderRadius: 2,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                    cursor: 'nwse-resize',
-                    pointerEvents: 'auto',
-                  }}
+                  onPointerDown={(e) => onPointerDownResize(e, 'right')}
+                  style={edgeHandleStyle('right')}
                 />
+
+                {/* Bottom */}
+                <div
+                  onPointerDown={(e) => onPointerDownResize(e, 'bottom')}
+                  style={edgeHandleStyle('bottom')}
+                />
+
+                {/* Left */}
+                <div
+                  onPointerDown={(e) => onPointerDownResize(e, 'left')}
+                  style={edgeHandleStyle('left')}
+                />
+
+                {/* Top */}
+                <div
+                  onPointerDown={(e) => onPointerDownResize(e, 'top')}
+                  style={edgeHandleStyle('top')}
+                />
+
+                {/* Corners */}
+                <div
+                  onPointerDown={(e) => onPointerDownResize(e, 'top-left')}
+                  style={cornerHandleStyle('top-left')}
+                />
+                <div
+                  onPointerDown={(e) => onPointerDownResize(e, 'top-right')}
+                  style={cornerHandleStyle('top-right')}
+                />
+                <div
+                  onPointerDown={(e) => onPointerDownResize(e, 'bottom-left')}
+                  style={cornerHandleStyle('bottom-left')}
+                />
+                <div
+                  onPointerDown={(e) => onPointerDownResize(e, 'bottom-right')}
+                  style={cornerHandleStyle('bottom-right')}
+                />
+
               </div>
             </div>
           </div>
