@@ -185,13 +185,20 @@ const UploadModal = ({ modalId , onUploadSuccess}) => {
             formData.append('file', file);
         })
 
-        const response = await api.post("api/dashboard/uploadMedia",formData,{
-            withCredentials: true
+        // const res = await api.post("api/dashboard/uploadMedia",formData,{
+        //     withCredentials: true
+        // })
+        // const data =  res.data
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/uploadMedia`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+           
         })
+        const data = await res.json()
 
-        const data =  response.data
         console.log("fetched Data : ", data)
-        if (!response.status===200) {
+        if (!res.status===200) {
             toast.error("Upload Failed")
             return null
         }

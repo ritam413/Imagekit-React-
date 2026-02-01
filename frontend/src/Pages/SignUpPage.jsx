@@ -23,8 +23,18 @@ const SignupPage = () => {
         setLoading(true);
 
         try{
-            const response = await api.post(`api/auth/signup`,form,{withCredentials: true})
-            const data = response.data
+            // const response = await api.post(`api/auth/signup`,form,{withCredentials: true})
+            // const data = response.data
+
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/signup`,{
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(form),
+            })
+            const data = await response.json()
             if(response.status===200){
                 useUserStore.getState().setUser(data.user)
                 navigate("/app")

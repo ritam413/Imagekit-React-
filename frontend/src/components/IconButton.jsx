@@ -18,8 +18,10 @@ export default function IconButton({ icon, label, isActive, onClick }) {
           style={{
             opacity: highlightSpring.opacity,
             transform: highlightSpring.x.to(x => `translateX(${x}px)`),
+
           }}
-          className="absolute h-12 w-12 bg-primary/70 rounded-r-2xl left-0  z-0"
+
+          className="absolute h-12 w-12 rounded-r-2xl left-0  z-0 bg-red-600/70"
         />
 
         {/* The actual icon button */}
