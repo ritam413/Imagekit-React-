@@ -7,7 +7,10 @@ const __dirname = path.dirname(__filename)
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, "../public/temp"))
+        if(process.env.NODE_ENV === "production")
+            cb(null, path.join(__dirname, "/tmp/"))
+        else
+            cb(null, path.join(__dirname, "../public/temp"))
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname)
