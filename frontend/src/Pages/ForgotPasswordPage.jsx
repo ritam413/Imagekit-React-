@@ -64,7 +64,7 @@ const SignupPage = () => {
             // const response = await api.put(`api/auth/reset-password`,payload)
             // const data = response.data
 
-            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/reset-password`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/reset-password`, {
                 method: "PUT",
                 credentials: "include",
                 headers: {

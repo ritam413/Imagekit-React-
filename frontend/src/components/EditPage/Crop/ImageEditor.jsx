@@ -127,7 +127,7 @@ export default function ImageEditor() {
       rotation: Math.round(rotation),
     };
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/transform-image`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/transform-image`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
