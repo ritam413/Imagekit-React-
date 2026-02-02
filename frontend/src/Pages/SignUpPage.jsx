@@ -26,7 +26,7 @@ const SignupPage = () => {
             // const response = await api.post(`api/auth/signup`,form,{withCredentials: true})
             // const data = response.data
 
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/signup`,{
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`,{
                 method: "POST",
                 credentials: "include",
                 headers: {
