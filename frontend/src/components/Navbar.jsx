@@ -19,7 +19,7 @@ const Navbar = () => {
       // const res = await api.post(`api/auth/logout`,{withCredentials: true})
       // const data =  res.data
 
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, { 
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/auth/logout`, { 
         method: 'POST',
         credentials: 'include', 
         headers: {

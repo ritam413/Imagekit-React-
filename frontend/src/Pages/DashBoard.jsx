@@ -77,7 +77,7 @@ const UserDashboard = () => {
       // const response = await api.get(`api/dashboard/getMedia/${userId}`)
       // const data = response.data
       console.log("USER ID is: ",userId)
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/getMedia/${userId}`, { 
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/dashboard/getMedia/${userId}`, { 
         method: 'GET',
         credentials: 'include', 
         headers: {
