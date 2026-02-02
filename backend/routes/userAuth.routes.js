@@ -4,7 +4,6 @@ const router  = express.Router();
 
 
 import {login , signup , logout , resetPassword} from '../controllers/user.auth.controller.js'
-import { protectRoute } from "../middleware/protectRoute.js";
 
 
 router.post('/login',login)

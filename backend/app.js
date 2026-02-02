@@ -1,11 +1,9 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import multer from 'multer'
 
 const app = express()
 
-const isProd = process.env.NODE_ENV === 'production'
 
 const allowedOrigins = ["https://picxy.netlify.app", "http://localhost:5173"];
 
@@ -36,10 +34,13 @@ import userAuthRoutes from './routes/userAuth.routes.js'
 import imageEditRoutes from './routes/imageEditRoute.js'
 import dashboardRoutes from './routes/dashboard.Route.js'
 import videoEditRoutes from './routes/videoEditRoute .js'
+import longpollinRoutes from './routes/http-longpoling.js';
 
 app.use("/api/auth/", userAuthRoutes)
 app.use("/api/image/", imageEditRoutes)
 app.use("/api/dashboard/", dashboardRoutes)
 app.use("/api/video/", videoEditRoutes)
+app.use("/api", longpollinRoutes)
+
 
 export { app }

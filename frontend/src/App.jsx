@@ -12,6 +12,7 @@ import ForgotPasswordPage from './Pages/ForgotPasswordPage.jsx'
 import HeroPage from './Pages/HeroPage.jsx'
 import UserDashboard from './Pages/DashBoard.jsx'
 import { EditPage } from './Pages/EditPage.jsx'
+import HttpsPoling from './Pages/HttpsPolling.jsx'
 // ---------------------
 
 
@@ -23,6 +24,10 @@ function App() {
 
       {/* ----- Routes ----- */}
       <Routes>
+        <Route
+          path='/poll'
+          element={<HttpsPoling />}
+        ></Route>
         <Route
           path='/'
           element={<LoginPage />}
