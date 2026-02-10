@@ -27,7 +27,7 @@ const imageSchema = new mongoose.Schema({
   fileSize: Number, // in bytes
   isPublic: {
     type: Boolean,
-    default: true, // default public
+    default: false, // default public
   },
   tags: [String],       // e.g., ["profile", "banner", "product"]
   categories: [String], // e.g., ["nature", "people", "tech"]

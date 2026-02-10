@@ -124,3 +124,27 @@ export const uploadMedia = async (req, res) => {
    
    
 }
+
+export const setImageVisiblity= async(req,res)=>{
+    const {_id}=req.body
+    if(!_id)
+        return res.status(404).json({message:"Image id is undefined"})
+    try{
+        const image = await Image.findByIdAndUpdate(_id,
+            [
+                {$set:{isPublic:{$not:"$isPublic"}}}
+            ],
+            {new : true}
+        );
+
+        if(!image)
+        {
+            console.log("No image found")
+            return res.status(400).json({message:"No image found"})
+        }
+        res.status(200).json({message:"Image visiblity set successfully"})
+    }catch(err){
+        console.log("Error setting image visiblity",err)
+    }
+
+}

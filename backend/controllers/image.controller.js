@@ -224,6 +224,14 @@ export const saveTransformedUrl = async (req, res) => {
 
 
 
+// const response = await fetch("localhost:3000/api/image/setImageVisiblity", 
+//     {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ _id, isPublic}),
+//     })
 
 
 
@@ -236,7 +244,7 @@ export const saveTransformedUrl = async (req, res) => {
 
 
 
-
+//do this using ffmpeg
 export const resize_crop = async (req, res) => {
     // Choosing the right cropping strategy
     // If you want to preserve the whole image content(no cropping) and need the exact same dimensions(height and width) in the output image as requested, choose either of the pad resize crop or forced crop strategy.
@@ -349,7 +357,7 @@ export const resize_crop = async (req, res) => {
 
     // If you need the exact same dimensions(height and width) in the output image as requested but it's okay to crop the image to preserve the aspect ratio (or extract a region from the original image). Then choose either of the maintain ratio crop or extract crop or pad extract crop strategy. You can combine the extract crop strategy with different focus values to get the desired result. 
 }
-
+//do this using ffmpeg
 export const res_resize_crop = async (req, res) => {
     const transformedURL = await resize_crop(req, res)
 
