@@ -14,7 +14,7 @@ export const getUserMedia = async (req, res) => {
     }
 
     try {
-        const image = await Image.find({ user: userId }).populate("user")
+        const image = await Image.find({ user: userId  }).populate("user")
         const video = await Video.find({ user: userId }).populate("user")
 
         const media = [...image, ...video];
@@ -128,7 +128,8 @@ export const uploadMedia = async (req, res) => {
 export const setImageVisiblity= async(req,res)=>{
     const {_id}=req.body
     if(!_id)
-        return res.status(404).json({message:"Image id is undefined"})
+        return res.status(400).json({message:"Image id is undefined"})
+    
     try{
         const image = await Image.findByIdAndUpdate(_id,
             [
@@ -142,7 +143,9 @@ export const setImageVisiblity= async(req,res)=>{
             console.log("No image found")
             return res.status(400).json({message:"No image found"})
         }
-        res.status(200).json({message:"Image visiblity set successfully"})
+        res.status(200).json({message:"Image visiblity set successfully",
+            data:image.isPublic
+        })
     }catch(err){
         console.log("Error setting image visiblity",err)
     }

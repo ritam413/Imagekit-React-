@@ -11,6 +11,6 @@ router.get("/getMedia/:id",protectRoute,getUserMedia)
 
 router.post("/uploadMedia",protectRoute,upload.array('file'),uploadMedia)
 
-router.patch("/upateImageVisiblity",protectRoute,setImageVisiblity)
+router.patch("/updateImageVisiblity",protectRoute,setImageVisiblity)
 
 export default router

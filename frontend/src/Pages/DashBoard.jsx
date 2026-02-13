@@ -182,6 +182,12 @@ const UserDashboard = () => {
 
   }
 
+  const handleVisiblityChange = useCallback((id,newStatus)=>{
+    setAssets(prevAssets =>prevAssets.map(
+      asset => asset._id === id ? 
+      {...asset,isPublic:newStatus}:asset
+    ))
+  },[])
 
   return (
     <div className="drawer lg:drawer-open">
@@ -267,6 +273,8 @@ const UserDashboard = () => {
                       className="break-inside-avoid mb-6"
                     >
                       <AssetCard
+                        key = {asset._id}
+                        onVisiblityUpdate = {handleVisiblityChange}
                         asset={asset}
                         onDeleteSucess={handleDeleteSucess}
                       />

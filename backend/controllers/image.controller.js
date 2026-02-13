@@ -224,21 +224,6 @@ export const saveTransformedUrl = async (req, res) => {
 
 
 
-// const response = await fetch("localhost:3000/api/image/setImageVisiblity", 
-//     {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ _id, isPublic}),
-//     })
-
-
-
-
-
-
-
 
 
 
@@ -399,7 +384,7 @@ export const test = async (req, res) => {
 
 
 export const getImages = async (req, res) => {
-    const images = await Image.find({}).populate("user");
+    const images = await Image.find({isPublic:true}).populate("user");
     res.json(images)
 }
 

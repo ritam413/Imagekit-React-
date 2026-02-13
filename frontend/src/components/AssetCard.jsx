@@ -1,15 +1,23 @@
 import { FaGripVertical } from "react-icons/fa";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { useState } from "react";
 import { toast } from 'react-hot-toast'
 import { useNavigate } from "react-router-dom";
 
 import Share from "../components/Share/index.jsx";
+import { IoEllipseSharp } from "react-icons/io5";
 
-export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
+export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity , onVisiblityUpdate }) => {
   const navigate = useNavigate();
   const [showShare, setShowShare] = useState(false);
   const [openShare, setOpenShare] = useState(false)
+
+
+  const [isPublic,setIsPublic] = useState(asset.isPublic)
+
+  useEffect(()=>{
+    setIsPublic(asset.isPublic)
+  },[asset.isPublic])
 
   const handleDownloadMedia = async () => {
     const response = await fetch(asset.url || asset.originalUrl)
@@ -25,9 +33,46 @@ export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
     URL.revokeObjectURL(url)
   }
 
-  const handleClose = () => {
-    setShowShare(false)
-    setOpenShare(false)
+  // const handleClose = () => {
+  //   setShowShare(false)
+  //   setOpenShare(false)
+  // }
+
+  const handleUpdateVisisblity=async()=>{
+    console.log("id of image is: ",asset._id)
+    console.log("id of image is: ",`${asset.isPublic?"Public":"Private"}`)
+
+    const oldStatus = isPublic
+    setIsPublic(!oldStatus)
+
+    try{
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/updateImageVisiblity`,{
+        method:'PATCH',
+        credentials:'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body:JSON.stringify({ _id: asset._id }),     
+      })
+      
+      const data = await response.json()
+
+      if(response.ok)
+      {
+        toast.success(data.message)
+        if(onVisiblityUpdate)
+        {
+          onVisiblityUpdate(asset._id,!oldStatus)
+        }
+      }
+      else{
+        setIsPublic(oldStatus)
+        toast.error(data.message)
+      }
+    }catch{
+      setIsPublic(oldStatus)
+      toast.error("Something went wrong")
+    }
   }
 
   const handleDelete = async () => {
@@ -55,6 +100,17 @@ export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
     <div className="card bg-base-100 shadow-xl image-full group transform-gpu transition-all duration-300 hover:scale-105">
       <img src={(asset.originalUrl) || (asset.url)} alt={asset.title} className="w-full h-full object-cover" />
       <div className="card-body p-4 justify-between">
+        <div
+          className="absolute top-4 left-4"
+        >
+          {!isCommunity &&
+            <span
+              className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-white drop-shadow-2xl shadow-lg 
+                ${asset.isPublic ? 'bg-green-500/50' : 'bg-red-600/50'}`}
+            >P</span>
+          }
+          
+        </div>
         <div className="card-actions justify-end">
           <div className="dropdown dropdown-end">
             <button tabIndex={0} className="btn btn-circle btn-ghost btn-sm text-white opacity-70 group-hover:opacity-100">
@@ -84,9 +140,22 @@ export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity }) => {
                   onClick={handleDownloadMedia}
                 >Download</button>
               </li>
-              {!isCommunity && <li
+              {!isCommunity && 
+                <li
                 onClick={handleDelete}
-                className="text-error"><a>Delete</a></li>}
+                className="text-error"><a>Delete</a>
+                </li>
+              }
+              {!isCommunity && 
+                <select 
+                  defaultValue={asset.isPublic?"Public":"Private"}
+                  className="select"
+                  onChange={handleUpdateVisisblity}
+                >
+                  <option>{asset.isPublic?"Public":"Private"}</option>
+                  <option>{asset.isPublic?"Private":"Public"}</option>
+                </select>
+              }
 
             </ul>
           </div>
