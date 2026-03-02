@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import { useImageStore } from "../../zustand/image.store.js";
 import { useEditStore } from "../../zustand/editpage.store.js";
-// import ImageEditor from "./Crop/ImageEditor.jsx";
-// import { contraintToBoudary } from '../../components/EditPage/Crop/CropHelperFunc.jsx'
 import * as fabric from "fabric";
 import fabricJsBackend from "../../utils/fabricjsBackend.js";
 export default function Canvas({ }) {
