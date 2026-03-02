@@ -8,8 +8,6 @@ import { useEditStore } from "../../zustand/editpage.store.js";
 // import { contraintToBoudary } from '../../components/EditPage/Crop/CropHelperFunc.jsx'
 import * as fabric from "fabric";
 import fabricJsBackend from "../../utils/fabricjsBackend.js";
-import { WarmFilter } from "../../filters/customFilters.js";
-import { set } from "mongoose";
 export default function Canvas({ }) {
 
   const fabricRef = useRef(null)
@@ -21,6 +19,7 @@ export default function Canvas({ }) {
   const imgRef = useRef(null)
   const [cropBox, setCropBox] = useState(null);
   const visiblePanel = useEditStore((state) => state.visiblePanel);
+  const presetfilter = imageStates[activeImage]?.presetFilter
 
   console.log("visiblePanel: ", visiblePanel)
   //! Setting UP my Canvas to Use in Editing
@@ -159,11 +158,11 @@ export default function Canvas({ }) {
     img.applyFilters()
     canvas.requestRenderAll()
   }
-
+  
+  //! this handles only the preset filters
   useEffect(() => {
     if (!canvasRef.current || !imgRef.current || !activeImage) return;
-    const filter = imageStates[activeImage]?.presetFilter
-    console.log("Preset Filter : ", filter)
+    console.log("Preset Filter : ", presetfilter)
     
     const staticFilterMap = {
       none:"none",
@@ -177,9 +176,9 @@ export default function Canvas({ }) {
       bw: fabric.filters.Grayscale,
     }
 
-    applyStaticFilter(filter,staticFilterMap)
-  }, [imageStates, activeImage])
-
+    applyStaticFilter(presetfilter,staticFilterMap)
+  }, [presetfilter, activeImage])
+  //! this handles variable filters
   useEffect(() => {
     if (!canvasRef.current || !imgRef.current) return
     const states = imageStates[activeImage]
