@@ -51,7 +51,8 @@ export default function AITools({ active }) {
   const addTransformation = useImageStore((state)=>state.addTransformation)
   const activeImage = useImageStore((state)=>state.activeImage)
   const setActiveImage = useImageStore((state)=>state.setActiveImage)
-  console.log("Transformation to be applied on : ",activeImage)
+  if(activeImage)
+  console.log("Transformation to be applied on : ✅ ",)
 
 
     const handleGenerate = async (e) => {

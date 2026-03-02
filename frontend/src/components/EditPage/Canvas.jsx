@@ -4,23 +4,25 @@ import { useEffect, useRef, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import { useImageStore } from "../../zustand/image.store.js";
 import { useEditStore } from "../../zustand/editpage.store.js";
-import ImageEditor from "./Crop/ImageEditor.jsx";
-import {contraintToBoudary} from '../../components/EditPage/Crop/CropHelperFunc.jsx'
+// import ImageEditor from "./Crop/ImageEditor.jsx";
+// import { contraintToBoudary } from '../../components/EditPage/Crop/CropHelperFunc.jsx'
 import * as fabric from "fabric";
 import fabricJsBackend from "../../utils/fabricjsBackend.js";
+import { WarmFilter } from "../../filters/customFilters.js";
+import { set } from "mongoose";
 export default function Canvas({ }) {
 
   const fabricRef = useRef(null)
   const canvasRef = useRef(null)
   const activeImage = useImageStore((state) => state.activeImage)
   const setActiveImage = useImageStore((state) => state.setActiveImage);
-  const imageStates = useImageStore((state)=>state.imageStates)
+  const imageStates = useImageStore((state) => state.imageStates)
   const containerRef = useRef(null)
   const imgRef = useRef(null)
-  const [cropBox,setCropBox] = useState(null);
+  const [cropBox, setCropBox] = useState(null);
   const visiblePanel = useEditStore((state) => state.visiblePanel);
-  
-  console.log("visiblePanel: ",visiblePanel)
+
+  console.log("visiblePanel: ", visiblePanel)
   //! Setting UP my Canvas to Use in Editing
   useEffect(() => {
 
@@ -88,57 +90,166 @@ export default function Canvas({ }) {
     if (activeImage) loadImageFromUrl(activeImage)
   }, [activeImage])
 
-
   //* Checking the current ImageState , observe if it is being set or not
-  useEffect(()=>{
-    console.log("Sates of Image current image is: ",imageStates)
-  },[imageStates])
+  useEffect(() => {
+    if (imageStates) {
+      console.log("Sates of Image current image is: Present ")
+    }
+  }, [imageStates])
+
+  const applyFabricFilter = (filterName, propName, value) => {
+    const canvas = fabricRef.current
+    const img = imgRef.current
+
+    if (!canvas || !img) return
+
+    let filter = img.filters.find(f => f instanceof fabric.filters[filterName]);
+    // img.filters = img.filters.filter(f=>f.type !== filterName)
+
+    if (filterName === 'Gamma' && !Array.isArray(value)) {
+      value = [value, value, value]
+      console.log("value of G value : ", value)
+    }
+
+    if (filter) {
+      filter[propName] = value
+    } else {
+      const newFilter = new fabric.filters[filterName]({
+        [propName]: value
+      })
+      img.filters.push(newFilter)
+    }
+    img.applyFilters()
+    canvas.requestRenderAll()
+  }
+
+  const applyStaticFilter = (filtername, filterMap) => {
+    if (!canvasRef.current || !imgRef.current) return
+
+    const canvas = fabricRef.current
+    const img = imgRef.current
 
 
-  //!gettingg live Dimention of the Image to set the crop Container
-  const getLiveDimensions=() =>{
-    if(!imgRef.current) return
+    img.filters = []
+
+    if (filtername === 'none') {
+      for (let i in filterMap) {
+        img.filters = img.filters.filter(
+          f => !(f instanceof fabric.filters[filterMap[i]])
+        )
+      }
+
+      img.applyFilters()
+      canvas.requestRenderAll()
+      return;
+    }
+    //! fix ti there cant fix it today anymore
+    console.log("new fabric.filters.", filterMap[filtername])
+    //* 1. check if a filter is already active 
+    //* 2. remove the activated filter 
+    //* 3. Check with the filtername i.e be applied and apply the filter  
+    const filterTypes = new Set(Object.values(filterMap))
+    img.filters = img.filters.filter(
+      f => !filterTypes.has(f.constructor)
+    )
+
+    let newFilterClass = filterMap[filtername]
+    if (!newFilterClass) return;
+    img.filters.push(new newFilterClass())
+    img.applyFilters()
+    canvas.requestRenderAll()
+  }
+
+  useEffect(() => {
+    if (!canvasRef.current || !imgRef.current || !activeImage) return;
+    const filter = imageStates[activeImage]?.presetFilter
+    console.log("Preset Filter : ", filter)
+    
+    const staticFilterMap = {
+      none:"none",
+      vintage: fabric.filters.Vintage,
+      polaroid: fabric.filters.Polaroid,
+      sepia: fabric.filters.Sepia,
+      technicolor: fabric.filters.Technicolor,
+      brownie: fabric.filters.Brownie,
+      kodachrome: fabric.filters.Kodachrome,
+      pixelate: fabric.filters.Pixelate,
+      bw: fabric.filters.Grayscale,
+    }
+
+    applyStaticFilter(filter,staticFilterMap)
+  }, [imageStates, activeImage])
+
+  useEffect(() => {
+    if (!canvasRef.current || !imgRef.current) return
+    const states = imageStates[activeImage]
+    if (!states) return
+    const filterMap = {
+      brightness: { class: 'Brightness', prop: 'brightness' },
+      contrast: { class: 'Contrast', prop: 'contrast' },
+      saturation: { class: 'Saturation', prop: 'saturation' },
+      gamma: { class: 'Gamma', prop: 'gamma' }
+      // warmth:{class : 'WarmFilter' , prop:'warmth'}
+    }
+
+
+
+    Object.keys(filterMap).forEach((key) => {
+      const { class: fclass, prop: fprop } = filterMap[key]
+
+      let value = states[key] ?? (fclass === 'Gamma' ? 1 : 0)
+
+      applyFabricFilter(fclass, fprop, value)
+      // console.log("sdfds", states.presetFilter, "sd", staticFilterMap[states.presetFilter])
+      //here presetFilter will be updated from store and therer will be one more dependacnce taht is presetFilter which
+      // applyStaticFilter(states.presetFilter, staticFilterMap)
+    })
+  }, [imageStates, activeImage])
+
+  const getLiveDimensions = () => {
+    if (!imgRef.current) return
 
     const obj = imgRef.current
 
-    return{
-      displayWidth:obj.getScaledWidth(),
-      displayHeight:obj.getScaledHeight(),
+    return {
+      displayWidth: obj.getScaledWidth(),
+      displayHeight: obj.getScaledHeight(),
 
-      left:obj.left,
-      top:obj.top,
+      left: obj.left,
+      top: obj.top,
 
-      scaleX:obj.scaleX,
-      scaleY:obj.scaleY
+      scaleX: obj.scaleX,
+      scaleY: obj.scaleY
     }
 
   }
+
   //! Actuall CropBox Overlay which we can see
-  const toggleCropbox = (isActive)=>{
+  const toggleCropbox = (isActive) => {
     const canvas = fabricRef.current
-    if(!canvas) return;
+    if (!canvas) return;
 
     const dimestions = getLiveDimensions()
 
-    if(isActive){
+    if (isActive) {
       const rect = new fabric.Rect({
         width: dimestions.displayWidth,
         height: dimestions.displayHeight,
-        fill:'rgba(0,0,0,0.1)',
-        stroke:'#fff',
-        strokeDashArray:[5,5],
-        strokeWidth:2,
-        cornerColor:'#3b82f6',
-        transparentCorners:false,
-        RotatingPoint:false,
+        fill: 'rgba(0,0,0,0.1)',
+        stroke: '#fff',
+        strokeDashArray: [5, 5],
+        strokeWidth: 2,
+        cornerColor: '#3b82f6',
+        transparentCorners: false,
+        RotatingPoint: false,
       })
-      rect.setControlVisible('mtr',false)
+      rect.setControlVisible('mtr', false)
       canvas.add(rect)
       canvas.centerObject(rect)
       canvas.setActiveObject(rect)
       setCropBox(rect);
-    }else{
-      if(cropBox){
+    } else {
+      if (cropBox) {
         canvas.remove(cropBox)
         setCropBox(null)
       }
@@ -146,9 +257,9 @@ export default function Canvas({ }) {
 
   }
   //*Toggling ON/OFF CropBox according to the Current Panel
-  useEffect(()=>{
+  useEffect(() => {
     toggleCropbox(visiblePanel === 'crop')
-  },[visiblePanel])
+  }, [visiblePanel])
 
 
   return (
