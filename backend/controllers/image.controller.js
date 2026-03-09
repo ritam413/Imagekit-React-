@@ -391,7 +391,24 @@ import { secureUrl } from "../utils/urlSigned.js";
 export const getImages = async (req, res) => {
     const images = await Image.find({isPublic:true}).populate("user");
     console.log(images)
-    res.json(images)
+    const response = []
+    for(const img of images)
+    {
+        const imgData = img.toObject()
+        console.log("Normal Url is: ",imgData.originalUrl);
+        
+        const signedUrl = secureUrl(imgData.originalUrl)
+        
+        const newImage = {
+            ...imgData,
+            originalUrl:signedUrl
+        }
+        console.log("Signed Url is: ",newImage.originalUrl);
+        response.push(newImage)
+
+    }
+    res.json(response)
+    // res.json(images)
 }
 
 export const getImage = async (req, res) => {
@@ -425,7 +442,7 @@ export const getImage = async (req, res) => {
     
     // image.originalUrl = signedURl 
     // console.log("Url ",image.originalUrl)
-        res.json(response)
+    res.json(response)
 }   
 
 

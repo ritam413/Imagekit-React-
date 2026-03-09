@@ -31,7 +31,7 @@ export const EditPage = () => {
   const {url} = useParams()  
   const decodeURl = decodeURIComponent(url);
   if(url && decodeURl)
-  console.log("URL i got from params is:✅ or : ✅ ")
+  console.log("URL i got from params is:✅ or : ✅ : " ,decodeURl )
   // ---------------------
 
 

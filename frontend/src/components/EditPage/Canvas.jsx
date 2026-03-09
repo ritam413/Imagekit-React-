@@ -270,13 +270,6 @@ export default function Canvas({ }) {
           <RxCross2
             size={30}
             className="absolute top-3 right-3 text-xl text-base-content/70 cursor-pointer hover:text-base-content transition hover:scale-105" onClick={() => { setActiveImage('') }} />
-          {/* {visiblePanel === "crop"
-            ?
-            // <ImageEditor className="max-w-full max-h-[80vh] overflow-auto flex items-center justify-center" /> 
-            " "
-            :
-            <img src={activeImage} alt="Editing canvas" className="max-w-full max-h-full" />
-           } */}
           <div
 
             className="max-w-full max-h-full"
@@ -286,7 +279,6 @@ export default function Canvas({ }) {
 
         </>
       }
-      {/* Example of where the image would go */}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import client from "../utils/imagekitConfig.js";
 import fs from 'fs'
 import chalk from "chalk";
 import Audio from "../models/audio.model.js";
+import { secureUrl } from "../utils/urlSigned.js";
 export const getUserMedia = async (req, res) => {
     const userId = req.params.id;
 
@@ -26,13 +27,27 @@ export const getUserMedia = async (req, res) => {
             return res.status(400).json({ message: "No media found" });
         }
 
+        let response = []
+        for(const data of media){
+            const dataObj = data.toObject()
+
+            const SignedUrl = secureUrl(dataObj.originalUrl)
+
+            const  newObject = {
+                ...dataObj,
+                originalUrl:SignedUrl
+            }
+
+            response.push(newObject)
+        }
+
         console.log("Media Found Succesfully ✅ : ", media.length)
-        console.log("Original Urls : ", media.map(media => media.originalUrl))
+        // console.log("Original Urls : ", media.map(media => media.originalUrl))
 
         res.status(200).json({
             sucess: true,
             count: media.length,
-            media
+            media: response,
         })
 
     } catch (error) {
