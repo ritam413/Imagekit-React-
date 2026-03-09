@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { AdjustmentSlider,PresetButton } from './EnhancementToolsIcon';
+import React, { useState, useEffect } from 'react';
+import { AdjustmentSlider, PresetButton } from './EnhancementToolsIcon';
+import { useImageStore } from '../../zustand/image.store';
 
 
 export const EnhancementTools = () => {
@@ -7,7 +8,7 @@ export const EnhancementTools = () => {
     const [brightness, setBrightness] = useState(0);
     const [contrast, setContrast] = useState(0);
     const [saturation, setSaturation] = useState(0);
-    const [exposure, setExposure] = useState(0);
+    const [exposure, setExposure] = useState(1);
     const [warmth, setWarmth] = useState(0);
     const [sharpen, setSharpen] = useState(0);
     const [vignette, setVignette] = useState(0);
@@ -16,18 +17,33 @@ export const EnhancementTools = () => {
     // State for active filter preset
     const [activeFilter, setActiveFilter] = useState('none');
 
+
+    const activeImage = useImageStore((state) => state.activeImage)
+    const updateActiveImageState = useImageStore((state) => state.updateActiveImageState)
+    useEffect(() => {
+        if (activeImage) {
+            updateActiveImageState({
+                sharpen, warmth, vignette, clarity, saturation, contrast, brightness, gamma: exposure
+            })
+        }
+    }, [sharpen, warmth, vignette, clarity, exposure, saturation, contrast, brightness, activeImage, updateActiveImageState])
+
     // Dummy filter presets for demonstration
     const filters = [
         { name: 'None', value: 'none', icon: '✨' },
-        { name: 'Warm', value: 'warm', icon: '☀️' },
-        { name: 'Cool', value: 'cool', icon: '🧊' },
-        { name: 'Vintage', value: 'vintage', icon: '🎞️' },
-        { name: 'B&W', value: 'bnw', icon: '⚫⚪' },
-        { name: 'Dramatic', value: 'dramatic', icon: '🎭' },
+        { name: 'Vintage', value: 'vintage', icon: '☀️' },
+        { name: 'Polaroid', value: 'polaroid', icon: '🧊' },
+        { name: 'Technicolor', value: 'technicolor', icon: '⚫⚪' },
+        { name: 'Brownie', value: 'brownie', icon: '🎭' },
+        { name: 'Kodachrome', value: 'kodachrome', icon: '🎭' },
+        { name: 'Pixelete', value: 'pixelate', icon: '🎆' },
+        { name: 'B&W', value: 'bw', icon: '🎬' },
     ];
-
     const handleFilterClick = (filterValue) => {
         setActiveFilter(filterValue);
+        updateActiveImageState({
+            presetFilter: filterValue
+        })
         // In a real app, you would apply the filter effects to the image here.
         console.log(`Applying filter: ${filterValue}`);
     };
@@ -36,7 +52,7 @@ export const EnhancementTools = () => {
         setBrightness(0);
         setContrast(0);
         setSaturation(0);
-        setExposure(0);
+        setExposure(1);
         setWarmth(0);
         setSharpen(0);
         setVignette(0);
@@ -54,7 +70,6 @@ export const EnhancementTools = () => {
         console.log("Applying current enhancements:", currentEnhancements);
         // show a toast or notification upon successful application
     };
-
 
     return (
         <div className="flex flex-col gap-6 text-white h-full font-sans">
@@ -82,50 +97,50 @@ export const EnhancementTools = () => {
                 <AdjustmentSlider
                     label="Brightness"
                     value={brightness}
-                    min="-100" max="100" step="1"
-                    onChange={(e) => setBrightness(parseInt(e.target.value))}
+                    min="-1" max="1" step="0.01"
+                    onChange={(e) => setBrightness(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
                     label="Contrast"
                     value={contrast}
-                    min="-100" max="100" step="1"
-                    onChange={(e) => setContrast(parseInt(e.target.value))}
+                    min="-1" max="1" step="0.01"
+                    onChange={(e) => setContrast(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
                     label="Saturation"
                     value={saturation}
-                    min="-100" max="100" step="1"
-                    onChange={(e) => setSaturation(parseInt(e.target.value))}
+                    min="-1" max="1" step="0.01"
+                    onChange={(e) => setSaturation(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
                     label="Exposure"
                     value={exposure}
-                    min="-100" max="100" step="1"
-                    onChange={(e) => setExposure(parseInt(e.target.value))}
+                    min="0.01" max="2.2" step="0.01"
+                    onChange={(e) => setExposure(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
                     label="Warmth"
                     value={warmth}
-                    min="-100" max="100" step="1"
-                    onChange={(e) => setWarmth(parseInt(e.target.value))}
+                    min="-1" max="1" step="0.01"
+                    onChange={(e) => setWarmth(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
                     label="Sharpen"
                     value={sharpen}
-                    min="0" max="100" step="1"
-                    onChange={(e) => setSharpen(parseInt(e.target.value))}
+                    min="-1" max="1" step="0.01"
+                    onChange={(e) => setSharpen(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
                     label="Vignette"
                     value={vignette}
-                    min="0" max="100" step="1"
-                    onChange={(e) => setVignette(parseInt(e.target.value))}
+                    min="-1" max="1" step="0.01"
+                    onChange={(e) => setVignette(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
                     label="Clarity"
                     value={clarity}
-                    min="0" max="100" step="1"
-                    onChange={(e) => setClarity(parseInt(e.target.value))}
+                    min="-1" max="1" step="0.01"
+                    onChange={(e) => setClarity(parseFloat(e.target.value))}
                 />
             </div>
 

@@ -2,7 +2,9 @@ import client from "../utils/imagekitConfig.js";
 import fs from 'fs'
 import chalk from "chalk";
 import Image from "../models/image.model.js";
-import { resize } from "framer-motion";
+import clouindary from '../config/cloudinary.js'
+
+
 export const transformation = async (req, res) => {
     const { sourceUrl, prompt } = req.body;
 
@@ -88,8 +90,10 @@ export const uploadImage = async (req, res) => {
             doc = await Image.create({
                 user: req.user._id,
                 originalUrl: response.url,
+                public_id:response.public_id,
                 filePath: response.filePath,
                 fileName: response.name,
+                // sign_url : true,
             });
         } else if (mimetype.startsWith("video/")) {
             doc = await Video.create({
@@ -382,9 +386,11 @@ export const test = async (req, res) => {
     res.send("Test Successfull")
 }
 
+import { secureUrl } from "../utils/urlSigned.js";
 
 export const getImages = async (req, res) => {
     const images = await Image.find({isPublic:true}).populate("user");
+    console.log(images)
     res.json(images)
 }
 
@@ -405,13 +411,22 @@ export const getImage = async (req, res) => {
     } else if (originalUrl) {
         image = await Image.findOne({ originalUrl });
     }
-
     if (!image) {
         console.log("No image found")
         return res.status(400).json({ message: "No image found" })
     }
-    res.json(image)
-}
+    const imageData = image.toObject()
+    const signedURl = secureUrl(imageData.originalUrl)
+
+    const response = {
+        ...imageData,
+        originalUrl:signedURl
+    }
+    
+    // image.originalUrl = signedURl 
+    // console.log("Url ",image.originalUrl)
+        res.json(response)
+}   
 
 
 
