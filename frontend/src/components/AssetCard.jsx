@@ -5,7 +5,6 @@ import { toast } from 'react-hot-toast'
 import { useNavigate } from "react-router-dom";
 
 import Share from "../components/Share/index.jsx";
-import { IoEllipseSharp } from "react-icons/io5";
 
 export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity , onVisiblityUpdate }) => {
   const navigate = useNavigate();
@@ -32,11 +31,6 @@ export const AssetCard = memo(({ asset, onDeleteSucess, isCommunity , onVisiblit
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
   }
-
-  // const handleClose = () => {
-  //   setShowShare(false)
-  //   setOpenShare(false)
-  // }
 
   const handleUpdateVisisblity=async()=>{
     console.log("id of image is: ",asset._id)
