@@ -12,7 +12,7 @@ export const EnhancementTools = () => {
     const [warmth, setWarmth] = useState(0);
     const [sharpen, setSharpen] = useState(0);
     const [vignette, setVignette] = useState(0);
-    const [clarity, setClarity] = useState(0);
+    const [blur, setblur] = useState(0);
 
     // State for active filter preset
     const [activeFilter, setActiveFilter] = useState('none');
@@ -23,10 +23,10 @@ export const EnhancementTools = () => {
     useEffect(() => {
         if (activeImage) {
             updateActiveImageState({
-                sharpen, warmth, vignette, clarity, saturation, contrast, brightness, gamma: exposure
+                sharpen, warmth, vignette, blur, saturation, contrast, brightness, gamma: exposure
             })
         }
-    }, [sharpen, warmth, vignette, clarity, exposure, saturation, contrast, brightness, activeImage, updateActiveImageState])
+    }, [sharpen, warmth, vignette, blur, exposure, saturation, contrast, brightness, activeImage, updateActiveImageState])
 
     // Dummy filter presets for demonstration
     const filters = [
@@ -56,7 +56,7 @@ export const EnhancementTools = () => {
         setWarmth(0);
         setSharpen(0);
         setVignette(0);
-        setClarity(0);
+        setblur(0);
         setActiveFilter('none');
         console.log("All enhancements reset.");
     };
@@ -65,7 +65,7 @@ export const EnhancementTools = () => {
         // Here you would typically send all current adjustment values and the active filter
         // to a function that processes the image on the canvas or backend.
         const currentEnhancements = {
-            brightness, contrast, saturation, exposure, warmth, sharpen, vignette, clarity, activeFilter
+            brightness, contrast, saturation, exposure, warmth, sharpen, vignette, blur, activeFilter
         };
         console.log("Applying current enhancements:", currentEnhancements);
         // show a toast or notification upon successful application
@@ -137,10 +137,10 @@ export const EnhancementTools = () => {
                     onChange={(e) => setVignette(parseFloat(e.target.value))}
                 />
                 <AdjustmentSlider
-                    label="Clarity"
-                    value={clarity}
+                    label="blur"
+                    value={blur}
                     min="-1" max="1" step="0.01"
-                    onChange={(e) => setClarity(parseFloat(e.target.value))}
+                    onChange={(e) => setblur(parseFloat(e.target.value))}
                 />
             </div>
 

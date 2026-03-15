@@ -77,7 +77,8 @@ export default function Canvas({ }) {
       canvas.setActiveObject(img)
       imgRef.current = img
       canvas.requestRenderAll()
-
+      // if(imgRef)
+      // console.log("ImageObj: ",imgRef.current)
     } catch (err) {
       console.log("Couldnt load Image from url", err)
     }
@@ -93,6 +94,8 @@ export default function Canvas({ }) {
       console.log("Sates of Image current image is: Present ")
     }
   }, [imageStates])
+
+
 
   const applyFabricFilter = (filterName, propName, value) => {
     const canvas = fabricRef.current
@@ -119,6 +122,49 @@ export default function Canvas({ }) {
     img.applyFilters()
     canvas.requestRenderAll()
   }
+  //! this handles variable filters
+  useEffect(() => {
+    if (!canvasRef.current || !imgRef.current) return
+    const states = imageStates[activeImage]
+    if (!states) return
+
+    const filterMap = {
+      brightness: { class: 'Brightness', prop: 'brightness' },
+      contrast: { class: 'Contrast', prop: 'contrast' },
+      saturation: { class: 'Saturation', prop: 'saturation' },
+      gamma: { class: 'Gamma', prop: 'gamma' }
+      // warmth:{class : 'WarmFilter' , prop:'warmth'}
+    }
+
+
+    Object.keys(filterMap).forEach((key) => {
+      const { class: fclass, prop: fprop } = filterMap[key]
+
+      let value = states[key] ?? (fclass === 'Gamma' ? 1 : 0)
+
+      applyFabricFilter(fclass, fprop, value)
+    })
+  }, [imageStates, activeImage])
+
+
+  useEffect(() => {
+    // implementation of apply convolute filter is left do it , head is paingin now ....
+
+    if (!canvasRef.current || !imgRef.current) return;
+
+    const states = imageStates[activeImage]
+    if (!states) return
+
+    const filterMap = {
+      sharpen: { class: 'sharpenFilter', prop: 'clariy' },
+      blur: { class: 'blurfilter', prop: 'blur' }
+    }
+
+    Object.keys(filterMap).forEach((key) => {
+      applyConvoluteFilter(key, states[key])
+    })
+  }, [activeImage, imageStates])
+
 
   const applyStaticFilter = (filtername, filterMap) => {
     if (!canvasRef.current || !imgRef.current) return
@@ -156,14 +202,13 @@ export default function Canvas({ }) {
     img.applyFilters()
     canvas.requestRenderAll()
   }
-  
   //! this handles only the preset filters
   useEffect(() => {
     if (!canvasRef.current || !imgRef.current || !activeImage) return;
     console.log("Preset Filter : ", presetfilter)
-    
+
     const staticFilterMap = {
-      none:"none",
+      none: "none",
       vintage: fabric.filters.Vintage,
       polaroid: fabric.filters.Polaroid,
       sepia: fabric.filters.Sepia,
@@ -174,34 +219,66 @@ export default function Canvas({ }) {
       bw: fabric.filters.Grayscale,
     }
 
-    applyStaticFilter(presetfilter,staticFilterMap)
+    applyStaticFilter(presetfilter, staticFilterMap)
   }, [presetfilter, activeImage])
-  //! this handles variable filters
-  useEffect(() => {
-    if (!canvasRef.current || !imgRef.current) return
-    const states = imageStates[activeImage]
-    if (!states) return
-    const filterMap = {
-      brightness: { class: 'Brightness', prop: 'brightness' },
-      contrast: { class: 'Contrast', prop: 'contrast' },
-      saturation: { class: 'Saturation', prop: 'saturation' },
-      gamma: { class: 'Gamma', prop: 'gamma' }
-      // warmth:{class : 'WarmFilter' , prop:'warmth'}
+
+
+  const applyConvoluteFilter = (type, value) => {
+    if (!imgRef.current || !canvasRef.current) return
+    const img = imgRef.current
+    const canvas = fabricRef.current
+    console.log("Value of convolute filter are: ",value)
+    img.filters = img.filters || []
+
+    let sharpen = img.filters.find(f => f.name === 'sharpenFilter')
+    let blur = img.filters.find(f => f.name === 'blurfilter')
+
+
+    if (type === 'sharpen') {
+      // value = value 
+      if (!sharpen) {
+        const sharpFilter = new fabric.filters.Convolute({
+          matrix: [
+            0, -value, 0,
+            -value, (4 * value) + 1, -value,
+            0, -value, 0
+          ]
+        })
+        sharpFilter.name = 'sharpenFilter'
+        img.filters.push(sharpFilter)
+      } else {
+        sharpen.matrix = [
+          0, -value, 0,
+          -value, (4 * value) + 1, -value,
+          0, -value, 0
+        ]
+      }
+    }
+    if (type === 'blur') {
+      value = value*5.5
+      if (!blur) {
+        const blurFilter = new fabric.filters.Convolute({
+          matrix: [
+            value / 9, value / 9, value / 9,
+            value / 9, (1 - value) + value / 9, value / 9,
+            value / 9, value / 9, value / 9,
+          ],
+        })
+        blurFilter.name = 'blurfilter'
+        img.filters.push(blurFilter)
+      } else {
+        blur.matrix = [
+          value / 9, value / 9, value / 9,
+          value / 9, (1 - value) + value / 9, value / 9,
+          value / 9, value / 9, value / 9,
+        ]
+      }
+
     }
 
-
-
-    Object.keys(filterMap).forEach((key) => {
-      const { class: fclass, prop: fprop } = filterMap[key]
-
-      let value = states[key] ?? (fclass === 'Gamma' ? 1 : 0)
-
-      applyFabricFilter(fclass, fprop, value)
-      // console.log("sdfds", states.presetFilter, "sd", staticFilterMap[states.presetFilter])
-      //here presetFilter will be updated from store and therer will be one more dependacnce taht is presetFilter which
-      // applyStaticFilter(states.presetFilter, staticFilterMap)
-    })
-  }, [imageStates, activeImage])
+    img.applyFilters()
+    canvas.requestRenderAll()
+  }
 
   const getLiveDimensions = () => {
     if (!imgRef.current) return

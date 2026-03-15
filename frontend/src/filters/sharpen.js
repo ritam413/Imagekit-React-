@@ -1,12 +1,15 @@
 import {filters} from 'fabric'
 import { useImageStore } from '../zustand/image.store'
 
-const activeImageUrl = useImageStore((state)=>state.activeImage)
+const ConvuluteFilter=(c)=>{
+    const sharpen = new filters.Convolute({
+        matrix:[
+            0  , -1 , 0,
+            -1 , c  , 0,
+            0  , -1 , 0 
+        ]
+    })
 
-if(!activeImageUrl) return;
+    
+}
 
-const sharpen = new filters.Convolute({
-    matrix:[
-        
-    ]
-})
