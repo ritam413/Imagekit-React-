@@ -6,6 +6,7 @@ import { useImageStore } from "../../zustand/image.store.js";
 import { useEditStore } from "../../zustand/editpage.store.js";
 import * as fabric from "fabric";
 import fabricJsBackend from "../../utils/fabricjsBackend.js";
+import "../../utils/VignetteFilter.js";
 export default function Canvas({ }) {
 
   const fabricRef = useRef(null)
@@ -15,9 +16,11 @@ export default function Canvas({ }) {
   const imageStates = useImageStore((state) => state.imageStates)
   const containerRef = useRef(null)
   const imgRef = useRef(null)
+  const vignetteControlRef = useRef(null)
   const [cropBox, setCropBox] = useState(null);
   const visiblePanel = useEditStore((state) => state.visiblePanel);
   const presetfilter = imageStates[activeImage]?.presetFilter
+  const updateActiveImageState = useImageStore((state) => state.updateActiveImageState)
 
   console.log("visiblePanel: ", visiblePanel)
   //! Setting UP my Canvas to Use in Editing
@@ -46,9 +49,197 @@ export default function Canvas({ }) {
 
     return () => {
       window.removeEventListener('resize', handleResize)
+      removeVignetteControl()
       canvas.dispose()
     }
   }, [])
+
+  const getDefaultVignetteState = (img) => {
+    if (!img) return null
+    const width = img.width
+    const height = img.height
+    const minDim = Math.min(width, height)
+    const maxDim = Math.max(width, height)
+    return {
+      enabled: false,
+      centerX: width / 2,
+      centerY: height / 2,
+      innerRadius: minDim * 0.15,
+      featherRadius: minDim * 0.4,
+      outerRadius: maxDim * 0.7,
+      intensity: 0.6,
+      continueFading: false,
+      initialized: true
+    }
+  }
+
+  const ensureDefaultVignetteState = (img) => {
+    if (!img) return
+    const { activeImage: currentId, imageStates: states } = useImageStore.getState()
+    if (!currentId) return
+    const existing = states[currentId]?.vignette
+    if (existing?.initialized) return
+    const defaults = getDefaultVignetteState(img)
+    if (!defaults) return
+    updateActiveImageState({ vignette: defaults })
+  }
+
+  const imageToCanvasSpace = (imageX, imageY) => {
+    const img = imgRef.current
+    if (!img) return { x: 0, y: 0 }
+    const scaleX = img.scaleX || 1
+    const scaleY = img.scaleY || 1
+    return {
+      x: img.left + (imageX - img.width / 2) * scaleX,
+      y: img.top + (imageY - img.height / 2) * scaleY
+    }
+  }
+
+  const canvasToImageSpace = (canvasX, canvasY) => {
+    const img = imgRef.current
+    if (!img) return { x: 0, y: 0 }
+    const scaleX = img.scaleX || 1
+    const scaleY = img.scaleY || 1
+    return {
+      x: ((canvasX - img.left) / scaleX) + img.width / 2,
+      y: ((canvasY - img.top) / scaleY) + img.height / 2
+    }
+  }
+
+  const updateVignetteState = (updates) => {
+    const { activeImage: currentId, imageStates: states } = useImageStore.getState()
+    if (!currentId) return
+    const existing = states[currentId]?.vignette || {}
+    updateActiveImageState({
+      vignette: {
+        ...existing,
+        ...updates,
+        initialized: true
+      }
+    })
+  }
+
+  const removeVignetteFilter = () => {
+    const img = imgRef.current
+    const canvas = fabricRef.current
+    if (!img || !canvas) return
+    const before = img.filters.length
+    img.filters = img.filters.filter(f => f.type !== 'Vignette')
+    if (img.filters.length !== before) {
+      img.applyFilters()
+      canvas.requestRenderAll()
+    }
+  }
+
+  const removeVignetteControl = () => {
+    const canvas = fabricRef.current
+    if (!canvas || !vignetteControlRef.current) return
+    vignetteControlRef.current.off('moving', handleVignetteMove)
+    vignetteControlRef.current.off('scaling', handleVignetteScale)
+    canvas.remove(vignetteControlRef.current)
+    vignetteControlRef.current = null
+  }
+
+  const handleVignetteMove = (event) => {
+    const circle = event.target
+    if (!circle) return
+    const { x, y } = canvasToImageSpace(circle.left, circle.top)
+    updateVignetteState({ centerX: x, centerY: y })
+  }
+
+  const handleVignetteScale = (event) => {
+    const circle = event.target
+    const img = imgRef.current
+    if (!circle || !img) return
+    const uniformScale = circle.scaleX
+    circle.scaleY = uniformScale
+    const scaledRadius = circle.radius * uniformScale
+    circle.set({
+      radius: scaledRadius,
+      scaleX: 1,
+      scaleY: 1
+    })
+    circle.setCoords()
+
+    const { activeImage: currentId, imageStates: states } = useImageStore.getState()
+    if (!currentId) return
+    const current = states[currentId]?.vignette
+    if (!current) return
+
+    const canvasScale = img.scaleX || 1
+    const newOuterRadius = scaledRadius / canvasScale
+    const prevOuter = current.outerRadius || 1
+    const proportionate = !(event.e && (event.e.altKey || event.e.ctrlKey))
+    const scaleRatio = prevOuter > 0 ? newOuterRadius / prevOuter : 1
+
+    const next = {
+      outerRadius: newOuterRadius
+    }
+
+    if (proportionate) {
+      next.innerRadius = Math.min(current.innerRadius * scaleRatio, newOuterRadius)
+      next.featherRadius = Math.min(current.featherRadius * scaleRatio, newOuterRadius)
+    }
+
+    updateVignetteState(next)
+  }
+
+  const toggleVignetteControl = (isActive, vignetteState) => {
+    const canvas = fabricRef.current
+    const img = imgRef.current
+    if (!canvas || !img) return
+
+    if (!isActive || !vignetteState) {
+      removeVignetteControl()
+      return
+    }
+
+    const { x, y } = imageToCanvasSpace(vignetteState.centerX, vignetteState.centerY)
+    const radius = Math.max(10, vignetteState.outerRadius * (img.scaleX || 1))
+
+    if (!vignetteControlRef.current) {
+      const circle = new fabric.Circle({
+        left: x,
+        top: y,
+        radius,
+        fill: 'rgba(59,130,246,0.08)',
+        stroke: '#2563eb',
+        strokeDashArray: [6, 4],
+        strokeWidth: 1.5,
+        selectable: true,
+        evented: true,
+        hasBorders: false,
+        hasControls: true,
+        lockRotation: true,
+        lockScalingFlip: true,
+        originX: 'center',
+        originY: 'center',
+        name: 'vignetteControl',
+        cornerColor: '#2563eb',
+        cornerStrokeColor: '#1d4ed8',
+        borderColor: '#1d4ed8',
+        cornerStyle: 'circle',
+        cornerSize: 12,
+        transparentCorners: false
+      })
+      circle.setControlVisible('mtr', false)
+      circle.on('moving', handleVignetteMove)
+      circle.on('scaling', handleVignetteScale)
+      vignetteControlRef.current = circle
+      canvas.add(circle)
+    }
+
+    const circle = vignetteControlRef.current
+    circle.set({
+      left: x,
+      top: y,
+      radius
+    })
+    circle.set({ scaleX: 1, scaleY: 1 })
+    circle.setCoords()
+    canvas.bringToFront(circle)
+    canvas.requestRenderAll()
+  }
   //! FUnction to actaully load the Image in the Canvas
   const loadImageFromUrl = async (url) => {
     const canvas = fabricRef.current
@@ -56,6 +247,8 @@ export default function Canvas({ }) {
     if (!canvas) return;
     try {
       canvas.clear();
+      removeVignetteControl()
+      imgRef.current = null
       // 1. Load the image
       const img = await fabric.FabricImage.fromURL(url, {
         controls: fabric.FabricImage.createControls().controls,
@@ -69,6 +262,10 @@ export default function Canvas({ }) {
       // 3. Use the smaller scale factor to ensure it fits both ways
       const finalScale = Math.min(scaleX, scaleY);
 
+      img.set({
+        originX: 'center',
+        originY: 'center'
+      })
       img.scale(finalScale);
       // img.isMoving=false;
       // img.selectable=false
@@ -76,6 +273,7 @@ export default function Canvas({ }) {
       canvas.centerObject(img)
       canvas.setActiveObject(img)
       imgRef.current = img
+      ensureDefaultVignetteState(img)
       canvas.requestRenderAll()
       // if(imgRef)
       // console.log("ImageObj: ",imgRef.current)
@@ -102,6 +300,23 @@ export default function Canvas({ }) {
     const img = imgRef.current
 
     if (!canvas || !img) return
+
+    if (filterName === 'Vignette') {
+      const config = { ...(value || {}) }
+      delete config.enabled
+      let filter = img.filters.find(f => f.type === 'Vignette')
+      if (!filter) {
+        filter = new fabric.filters.Vignette(config)
+        img.filters.push(filter)
+      } else if (typeof filter.setOptions === 'function') {
+        filter.setOptions(config)
+      } else {
+        Object.assign(filter, config)
+      }
+      img.applyFilters()
+      canvas.requestRenderAll()
+      return
+    }
 
     let filter = img.filters.find(f => f instanceof fabric.filters[filterName]);
     // img.filters = img.filters.filter(f=>f.type !== filterName)
@@ -146,6 +361,30 @@ export default function Canvas({ }) {
     })
   }, [imageStates, activeImage])
 
+  useEffect(() => {
+    if (!canvasRef.current || !imgRef.current) return
+    const states = imageStates[activeImage]
+    const vignetteState = states?.vignette
+    if (!vignetteState) {
+      removeVignetteFilter()
+      toggleVignetteControl(false)
+      return
+    }
+
+    if (!vignetteState.enabled || (vignetteState.intensity ?? 0) <= 0) {
+      removeVignetteFilter()
+      toggleVignetteControl(false)
+      return
+    }
+
+    applyFabricFilter('Vignette', null, vignetteState)
+    if (visiblePanel === 'vignette') {
+      toggleVignetteControl(true, vignetteState)
+    } else {
+      toggleVignetteControl(false)
+    }
+  }, [imageStates, activeImage, visiblePanel])
+
 
   useEffect(() => {
     // implementation of apply convolute filter is left do it , head is paingin now ....
@@ -173,7 +412,8 @@ export default function Canvas({ }) {
     const img = imgRef.current
 
 
-    img.filters = []
+    const existingVignette = img.filters.find(f => f.type === 'Vignette')
+    img.filters = existingVignette ? [existingVignette] : []
 
     if (filtername === 'none') {
       for (let i in filterMap) {

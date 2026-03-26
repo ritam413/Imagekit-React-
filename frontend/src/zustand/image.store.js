@@ -17,7 +17,18 @@ export const useImageStore = create((set, get) => ({
             const defaultStates = {
                 rotation: 0, 
                 crop: { x: 0, y: 0 },
-                presetFilter:null
+                presetFilter:null,
+                vignette: {
+                    enabled: false,
+                    centerX: 0,
+                    centerY: 0,
+                    innerRadius: 0,
+                    featherRadius: 0,
+                    outerRadius: 0,
+                    intensity: 0.6,
+                    continueFading: false,
+                    initialized: false
+                }
             };
             return{
 
